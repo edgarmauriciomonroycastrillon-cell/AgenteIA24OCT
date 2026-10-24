@@ -76,6 +76,7 @@ def texto(content) -> str:
 
 
 def main() -> int:
+    sys.stdout.reconfigure(encoding="utf-8")  # Windows: la consola usa cp1252
     args = [a for a in sys.argv[1:] if not a.startswith("--")]
     if len(args) != 1:
         print(__doc__)
