@@ -26,7 +26,7 @@ Tools         habilitadas: bash, read, write, web_search, web_fetch · política
               apagadas: edit, glob, grep (el trabajo no edita código ni busca archivos)
               web_*: allowed_domains = banrep.gov.co, dane.gov.co, superfinanciera.gov.co,
               datos.gov.co, invias.gov.co, mintransporte.gov.co, ani.gov.co, larepublica.co,
-              portafolio.co, eltiempo.com, valoraanalitik.com, reuters.com, bloomberg.com,
+              portafolio.co, eltiempo.com, valoraanalitik.com, bloomberg.com,
               colfecar.org.co · user_location CO / America/Bogota
 MCP           no usa (Gmail MCP no puede enviar; se usa la API HTTP de Resend)
 Skills        no usa (el reporte es Markdown/HTML simple)
@@ -45,7 +45,9 @@ Credenciales  vault analista-colombia: Resend (environment_variable RESEND_API_K
 Compuerta     hace solo: buscar, redactar, enviar el correo, actualizar la memoria.
               compuerta real: destinatario fijo en el kickoff y remitente de prueba de Resend,
               que solo entrega al correo dueño de la cuenta; no hay herramienta de borrado.
-Fuera         sin Gmail MCP (no envía), sin outcome (aún), sin subagentes, sin MCP.
+Fuera         sin Gmail MCP (no envía), sin outcome (aún), sin subagentes, sin MCP, sin reuters.com
+              (la API lo rechazó: el crawler de Anthropic no puede acceder), sin user_location
+              (el buscador no admite country CO).
 ```
 
 ## Archivos
@@ -82,5 +84,8 @@ uv run --script scripts/inspeccionar.py <session_id>
 
 | Recurso | ID |
 |---|---|
-| agent.md | (después de `ant apply`) |
-| environment.yaml | (después de `ant apply`) |
+| agent.md | `agent_018v718v6WfZ2SbkA1puZjQd` (v1) |
+| environment.yaml | `env_01Ey6tqA2ygpwuLgGL6JkmKZ` |
+| vault.yaml | `vlt_011CgMLdGnA7v6zWFqrpEL3C` |
+| memory_store-indicadores.yaml | `memstore_0118tjf9YxcNhP28Joqq9AxP` |
+| deployment-diario.yaml | `depl_01A2ZcVTJY7Cbeb1dCRReHJ3` (en pausa) |

@@ -8,10 +8,9 @@ tools:
       - type: web_search
         name: web_search
         enabled: true
-        allowed_domains: [banrep.gov.co, dane.gov.co, superfinanciera.gov.co, datos.gov.co, invias.gov.co, mintransporte.gov.co, ani.gov.co, larepublica.co, portafolio.co, eltiempo.com, valoraanalitik.com, reuters.com, bloomberg.com, colfecar.org.co]
-        user_location: {type: approximate, country: CO, timezone: America/Bogota}
+        allowed_domains: [banrep.gov.co, dane.gov.co, superfinanciera.gov.co, datos.gov.co, invias.gov.co, mintransporte.gov.co, ani.gov.co, larepublica.co, portafolio.co, eltiempo.com, valoraanalitik.com, bloomberg.com, colfecar.org.co]
       - type: web_fetch
         name: web_fetch
         enabled: true
-        allowed_domains: [banrep.gov.co, dane.gov.co, superfinanciera.gov.co, datos.gov.co, invias.gov.co, mintransporte.gov.co, ani.gov.co, larepublica.co, portafolio.co, eltiempo.com, valoraanalitik.com, reuters.com, bloomberg.com, colfecar.org.co]
+        allowed_domains: [banrep.gov.co, dane.gov.co, superfinanciera.gov.co, datos.gov.co, invias.gov.co, mintransporte.gov.co, ani.gov.co, larepublica.co, portafolio.co, eltiempo.com, valoraanalitik.com, bloomberg.com, colfecar.org.co]
         max_content_tokens: 30000

@@ -33,13 +33,8 @@ tools:
     - portafolio.co
     - eltiempo.com
     - valoraanalitik.com
-    - reuters.com
     - bloomberg.com
     - colfecar.org.co
-    user_location:
-      type: approximate
-      country: CO
-      timezone: America/Bogota
   - type: web_fetch
     name: web_fetch
     enabled: true
@@ -55,7 +50,6 @@ tools:
     - portafolio.co
     - eltiempo.com
     - valoraanalitik.com
-    - reuters.com
     - bloomberg.com
     - colfecar.org.co
     max_content_tokens: 30000

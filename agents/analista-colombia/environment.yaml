@@ -27,8 +27,6 @@ config:
       - "*.eltiempo.com"
       - "valoraanalitik.com"
       - "*.valoraanalitik.com"
-      - "reuters.com"
-      - "*.reuters.com"
       - "bloomberg.com"
       - "*.bloomberg.com"
       - "colfecar.org.co"

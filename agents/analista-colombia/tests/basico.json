@@ -1,0 +1,8 @@
+{
+ "agent": "analista-colombia",
+ "title": "test analista-colombia dry run",
+ "budget_usd": 5,
+ "vault_ids": [],
+ "resources": [{"path": "./agents/analista-colombia/memory_store-indicadores.yaml", "access": "read_write"}],
+ "dry_run": true
+}
