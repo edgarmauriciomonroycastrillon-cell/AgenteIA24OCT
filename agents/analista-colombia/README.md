@@ -2,7 +2,7 @@
 
 Analista económico diario para Colombia: cada día hábil busca en fuentes oficiales y de prensa los indicadores de divisas, logística/vías y macroeconomía, redacta un reporte en español con fuente y fecha de cada cifra, y lo envía por correo.
 
-- **Costo medido por corrida:** USD 0,43 (dry run, 2026-10-24, 2 pruebas).
+- **Costo medido por corrida:** USD 0,41–0,56 por corrida (3 pruebas, 2026-10-24).
 
 ## Ficha
 
@@ -29,7 +29,9 @@ Tools         habilitadas: bash, read, write, web_search, web_fetch · política
               portafolio.co, eltiempo.com, valoraanalitik.com, bloomberg.com,
               colfecar.org.co · user_location CO / America/Bogota
 MCP           no usa (Gmail MCP no puede enviar; se usa la API HTTP de Resend)
-Skills        no usa (el reporte es Markdown/HTML simple)
+Skills        reporte-correo-html (propia, skills/reporte-correo-html): convierte reporte.json en
+              HTML de correo (render_email.py) y lo envía por Resend (enviar_resend.py).
+              por qué: el diseño debe ser idéntico cada día; un script lo garantiza mejor que el modelo.
 Herramientas  no usa
   propias
 Subagentes    ninguno (un solo bucle; no hay lectura paralela medida)
@@ -54,6 +56,7 @@ Fuera         sin Gmail MCP (no envía), sin outcome (aún), sin subagentes, sin
 
 | Archivo | Qué es |
 |---|---|
+| `skills.yaml` + `../../skills/reporte-correo-html/` | La skill que arma y envía el correo HTML |
 | `model.yaml` | Nombre, descripción, modelo y effort |
 | `system_prompt.md` | El system prompt, en Simplified Technical English |
 | `tools.yaml` | Tools del sandbox, dominios web y permisos |
@@ -84,7 +87,8 @@ uv run --script scripts/inspeccionar.py <session_id>
 
 | Recurso | ID |
 |---|---|
-| agent.md | `agent_018v718v6WfZ2SbkA1puZjQd` (v2) |
+| agent.md | `agent_018v718v6WfZ2SbkA1puZjQd` (v4) |
+| skills/reporte-correo-html | `skill_01UbFiNtmj2aDaxmJNz12GvR` |
 | environment.yaml | `env_01Ey6tqA2ygpwuLgGL6JkmKZ` |
 | vault.yaml | `vlt_011CgMLdGnA7v6zWFqrpEL3C` |
 | memory_store-indicadores.yaml | `memstore_0118tjf9YxcNhP28Joqq9AxP` |

@@ -9,15 +9,15 @@
     "./agents/analista-colombia/agent.md": {
       "kind": "agent",
       "id": "agent_018v718v6WfZ2SbkA1puZjQd",
-      "version": "2",
-      "hash": "752d67472801e30b7493a9153c658ba5",
-      "remote_hash": "5c9bfc12bfb80cfc7d5cdc1b6dd8bddc"
+      "version": "4",
+      "hash": "0460e38eeb7f55aa52b618c8f897e907",
+      "remote_hash": "0a8fed436c823c6650fce3d3e08367cb"
     },
     "./agents/analista-colombia/deployment-diario.yaml": {
       "kind": "deployment",
       "id": "depl_01A2ZcVTJY7Cbeb1dCRReHJ3",
-      "hash": "831d40d5851c5b41473b64cc9c952d05",
-      "remote_hash": "831d40d5851c5b41473b64cc9c952d05"
+      "hash": "161aaf2721161db2f7b8726543a53ee2",
+      "remote_hash": "161aaf2721161db2f7b8726543a53ee2"
     },
     "./agents/analista-colombia/environment.yaml": {
       "kind": "environment",
@@ -36,6 +36,12 @@
       "id": "vlt_011CgMLdGnA7v6zWFqrpEL3C",
       "hash": "da2648d279ae9924885900e5f6d3b736",
       "remote_hash": "da2648d279ae9924885900e5f6d3b736"
+    },
+    "./skills/reporte-correo-html": {
+      "kind": "skill",
+      "id": "skill_01UbFiNtmj2aDaxmJNz12GvR",
+      "version": "skver_01Xdhqa49c8vTBKzBwRuFV1e",
+      "hash": "bf4a95abfef132a31f882e7492990fcc"
     }
   }
 }

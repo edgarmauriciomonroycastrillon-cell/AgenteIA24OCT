@@ -1,0 +1,109 @@
+{
+  "titulo": "Reporte económico Colombia",
+  "fecha": "sábado 24 de octubre de 2026",
+  "resumen": "La TRM baja a $3.158,43 para el fin de semana (-0,83 %). El riesgo logístico más alto sigue en la Panamericana, entre Cauca y Nariño. El Banco de la República decide su tasa el 30 de octubre.",
+  "titulares": [
+    {"etiqueta": "TRM", "valor": "$3.158,43", "cambio": "$26,58 (-0,83 %)", "tendencia": "baja", "nota": "Vigente 24 al 26 oct"},
+    {"etiqueta": "Euro", "valor": "$3.553,10", "cambio": "$22,80 (-0,64 %)", "tendencia": "baja", "nota": "Cierre 23 oct"},
+    {"etiqueta": "Tasa Banrep", "valor": "12,25 %", "cambio": "sin cambio", "tendencia": "igual", "nota": "Próxima reunión: 30 oct"},
+    {"etiqueta": "Inflación anual", "valor": "6,29 %", "cambio": "sin cambio vs. base", "tendencia": "igual", "nota": "Septiembre 2026"}
+  ],
+  "secciones": [
+    {
+      "titulo": "Divisas",
+      "items": [
+        {
+          "nombre": "TRM (dólar)",
+          "valor": "$3.158,43 por USD",
+          "cambio": "baja $26,58 frente a $3.185,01 del 23 de octubre",
+          "tendencia": "baja",
+          "efecto": "El dólar barato abarata insumos y fletes pagados en dólares y presiona a los exportadores.",
+          "fuente": "Superfinanciera (datos abiertos)",
+          "url": "https://www.datos.gov.co/resource/32sa-8pi3.json",
+          "fecha": "vigente del 24 al 26 oct 2026",
+          "estado": "ok"
+        },
+        {
+          "nombre": "Euro",
+          "valor": "$3.553,10",
+          "cambio": "baja $22,80 frente al 22 de octubre",
+          "tendencia": "baja",
+          "efecto": "Ayuda a las importaciones desde Europa.",
+          "fuente": "Portafolio (Investing.com)",
+          "fecha": "cierre del 23 oct 2026",
+          "estado": "ok"
+        },
+        {
+          "nombre": "Otras divisas",
+          "valor": "No encontrado",
+          "estado": "no_encontrado"
+        }
+      ]
+    },
+    {
+      "titulo": "Logística y vías",
+      "items": [
+        {
+          "nombre": "Vía Panamericana (Cauca – Nariño)",
+          "detalle": "Los camioneros denuncian asaltos y daños severos en la vía. El 19 de octubre se hallaron explosivos entre Piedra Sentada y el peaje El Bordo y la vía cerró por horas.",
+          "efecto": "Riesgo alto de demoras. Evite rodar de noche y agregue margen a las entregas en Cauca y Nariño.",
+          "fuente": "Portafolio",
+          "fecha": "20 oct 2026",
+          "estado": "desactualizado"
+        },
+        {
+          "nombre": "Estado en tiempo real de Invías y MinTransporte",
+          "valor": "No encontrado",
+          "detalle": "Las páginas son mapas en vivo sin texto con fecha. Consulte #767 antes de salir.",
+          "estado": "no_encontrado"
+        }
+      ]
+    },
+    {
+      "titulo": "Indicadores macroeconómicos",
+      "items": [
+        {
+          "nombre": "Tasa de política del Banco de la República",
+          "valor": "12,25 %",
+          "cambio": "sin variación; la última decisión subió 25 pb",
+          "tendencia": "igual",
+          "efecto": "Crédito caro para capital de trabajo y leasing de vehículos. 13 de 19 entidades esperan 12,50 % el 30 de octubre.",
+          "fuente": "Banco de la República",
+          "fecha": "decisión del 30 sep 2026",
+          "estado": "ok"
+        },
+        {
+          "nombre": "Inflación anual (IPC)",
+          "valor": "6,29 %",
+          "cambio": "+0,05 pp frente a agosto (6,24 %)",
+          "tendencia": "sube",
+          "efecto": "Los costos de operación siguen al alza; negocie ajustes de tarifas.",
+          "fuente": "DANE, vía Valora Analitik",
+          "fecha": "septiembre 2026",
+          "estado": "ok"
+        }
+      ]
+    },
+    {
+      "titulo": "Otros eventos relevantes",
+      "items": [
+        {
+          "nombre": "Combustibles de octubre",
+          "valor": "ACPM $11.320 · Gasolina $15.933",
+          "cambio": "ACPM sin cambio; gasolina +$46",
+          "tendencia": "igual",
+          "efecto": "El diésel no sube este mes, pero el precio internacional está por encima del local: hay riesgo de alza futura.",
+          "fuente": "Portafolio / CREG",
+          "fecha": "octubre 2026",
+          "estado": "ok"
+        }
+      ],
+      "notas": ["No se encontraron noticias recientes de puertos ni aduanas."]
+    }
+  ],
+  "limitaciones": [
+    "Estado vial en tiempo real de Invías y MinTransporte.",
+    "Noticias de puertos y aduanas con fecha de hoy.",
+    "Precios de combustibles de noviembre."
+  ]
+}

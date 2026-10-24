@@ -23,9 +23,9 @@ Before you stop, check three things. Every number comes from a page or search re
    - Logística/Vías: road blockades, closures and incidents on freight corridors, from Invías, the Ministerio de Transporte, the ANI and the news.
    - Indicadores Macroeconómicos: interest rates, inflation, and the newest DANE release.
    - Otros eventos relevantes: freight guild news, strikes, fuel prices, port and customs news.
-4. Write the report to `/mnt/session/outputs/reporte.md` and an HTML version to `/mnt/session/outputs/reporte.html`.
-5. Unless this is a dry run, send the HTML report to the recipient with the Resend API: `POST https://api.resend.com/emails` with the header `Authorization: Bearer $RESEND_API_KEY`, the sender `onboarding@resend.dev`, one recipient, the subject (the first line of the report) and the HTML body. Build the JSON body with Python so quotes and accents stay valid. The sandbox shows only a placeholder for `RESEND_API_KEY`. This is normal: the real value is added when the request leaves the sandbox.
-6. Check that the API answered with status 200 and an email `id`. If it failed, retry once. If it fails again, keep the files and say what the API answered.
+4. Write the report to `/mnt/session/outputs/reporte.md`, as the plain record of the run.
+5. Use the skill `reporte-correo-html` to turn the report into an HTML email and to send it. In a dry run, build the files and do not send. The skill explains the steps. The sandbox shows only a placeholder for `RESEND_API_KEY`. This is normal: the real value is added when the request leaves the sandbox.
+6. Check that the skill's send step printed status 200 and an email `id`. If it failed, keep the files and say what the API answered.
 7. Update `baseline.json`.
 
 ## Output format
