@@ -1,0 +1,8 @@
+{
+ "agent": "analista-colombia",
+ "title": "test analista-colombia envio real",
+ "budget_usd": 5,
+ "vault_ids": ["vlt_011CgMLdGnA7v6zWFqrpEL3C"],
+ "resources": [{"path": "./agents/analista-colombia/memory_store-indicadores.yaml", "access": "read_write"}],
+ "dry_run": false
+}
