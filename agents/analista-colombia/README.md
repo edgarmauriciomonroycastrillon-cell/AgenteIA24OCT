@@ -2,7 +2,7 @@
 
 Analista económico diario para Colombia: cada día hábil busca en fuentes oficiales y de prensa los indicadores de divisas, logística/vías y macroeconomía, redacta un reporte en español con fuente y fecha de cada cifra, y lo envía por correo.
 
-- **Costo medido por corrida:** pendiente (se mide en la primera prueba). Estimado: USD 0,5–1,5.
+- **Costo medido por corrida:** USD 0,43 (dry run, 2026-10-24, 2 pruebas).
 
 ## Ficha
 
@@ -84,7 +84,7 @@ uv run --script scripts/inspeccionar.py <session_id>
 
 | Recurso | ID |
 |---|---|
-| agent.md | `agent_018v718v6WfZ2SbkA1puZjQd` (v1) |
+| agent.md | `agent_018v718v6WfZ2SbkA1puZjQd` (v2) |
 | environment.yaml | `env_01Ey6tqA2ygpwuLgGL6JkmKZ` |
 | vault.yaml | `vlt_011CgMLdGnA7v6zWFqrpEL3C` |
 | memory_store-indicadores.yaml | `memstore_0118tjf9YxcNhP28Joqq9AxP` |

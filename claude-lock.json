@@ -9,15 +9,15 @@
     "./agents/analista-colombia/agent.md": {
       "kind": "agent",
       "id": "agent_018v718v6WfZ2SbkA1puZjQd",
-      "version": "1",
-      "hash": "a03473334ae620a0d561a847f42020a6",
-      "remote_hash": "08c3179194b1004f28e76583551adfc3"
+      "version": "2",
+      "hash": "752d67472801e30b7493a9153c658ba5",
+      "remote_hash": "5c9bfc12bfb80cfc7d5cdc1b6dd8bddc"
     },
     "./agents/analista-colombia/deployment-diario.yaml": {
       "kind": "deployment",
       "id": "depl_01A2ZcVTJY7Cbeb1dCRReHJ3",
-      "hash": "28677f51860837b6c4e445e43b10640a",
-      "remote_hash": "28677f51860837b6c4e445e43b10640a"
+      "hash": "831d40d5851c5b41473b64cc9c952d05",
+      "remote_hash": "831d40d5851c5b41473b64cc9c952d05"
     },
     "./agents/analista-colombia/environment.yaml": {
       "kind": "environment",

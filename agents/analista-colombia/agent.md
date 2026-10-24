@@ -75,8 +75,8 @@ Before you stop, check three things. Every number comes from a page or search re
 
 1. Get today's date with `TZ=America/Bogota date`. Facts such as exchange rates change every day, so look up each one with a tool before you use it.
 2. Read `baseline.json`.
-3. Collect the data.
-   - Divisas: the official TRM, the euro rate, and any other main exchange rate.
+3. Collect the data. Open the page that holds each key figure before you use it, because a search snippet can be old or partial. If an official site blocks the page, open the news page that quotes it and say in the report which one you used.
+   - Divisas: the official TRM, the euro rate, and any other main exchange rate. Read the TRM from the open-data table of the Superfinanciera: `https://www.datos.gov.co/resource/32sa-8pi3.json?$limit=2&$order=vigenciadesde%20DESC`. In bash, use `curl -sG` with the base URL and `--data-urlencode` for the two parameters. The newest row gives the value and the days it is valid (`vigenciadesde` to `vigenciahasta`). Use that row as the TRM of the day, and report both dates, because a weekend TRM is set on Friday.
    - Logística/Vías: road blockades, closures and incidents on freight corridors, from Invías, the Ministerio de Transporte, the ANI and the news.
    - Indicadores Macroeconómicos: interest rates, inflation, and the newest DANE release.
    - Otros eventos relevantes: freight guild news, strikes, fuel prices, port and customs news.
