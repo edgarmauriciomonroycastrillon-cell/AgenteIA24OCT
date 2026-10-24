@@ -1,0 +1,2 @@
+name: colombia-indicadores
+description: "Last known value, date and source of each Colombia indicator (TRM, euro, rates, inflation). The agent reads baseline.json at the start of a run and updates it at the end."

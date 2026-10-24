@@ -1,0 +1,5 @@
+name: colombia-economic-analyst
+description: "Daily economic and freight-logistics report for Colombia. Runs on weekdays at 06:30 Bogota time and emails the report."
+model:
+  id: claude-sonnet-5-5
+  effort: medium

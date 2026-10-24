@@ -1,0 +1,36 @@
+config:
+  type: cloud
+  networking:
+    type: limited
+    allow_mcp_servers: false
+    allow_package_managers: false
+    allowed_hosts:
+      - "banrep.gov.co"
+      - "*.banrep.gov.co"
+      - "dane.gov.co"
+      - "*.dane.gov.co"
+      - "superfinanciera.gov.co"
+      - "*.superfinanciera.gov.co"
+      - "datos.gov.co"
+      - "*.datos.gov.co"
+      - "invias.gov.co"
+      - "*.invias.gov.co"
+      - "mintransporte.gov.co"
+      - "*.mintransporte.gov.co"
+      - "ani.gov.co"
+      - "*.ani.gov.co"
+      - "larepublica.co"
+      - "*.larepublica.co"
+      - "portafolio.co"
+      - "*.portafolio.co"
+      - "eltiempo.com"
+      - "*.eltiempo.com"
+      - "valoraanalitik.com"
+      - "*.valoraanalitik.com"
+      - "reuters.com"
+      - "*.reuters.com"
+      - "bloomberg.com"
+      - "*.bloomberg.com"
+      - "colfecar.org.co"
+      - "*.colfecar.org.co"
+      - "api.resend.com"

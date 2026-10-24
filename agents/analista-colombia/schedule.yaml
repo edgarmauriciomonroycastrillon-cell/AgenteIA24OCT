@@ -1,0 +1,7 @@
+name: analista-colombia lun-vie 6:30
+deployment_file: deployment-diario.yaml
+schedule: {type: cron, expression: "30 6 * * 1-5", timezone: America/Bogota}
+budget: {type: limit, max_list_cost: {amount: "300", currency: USD}}   # cents: "300" = USD 3
+vault_ids: [./vault.yaml]
+resources:
+  - {path: ./memory_store-indicadores.yaml, access: read_write}
