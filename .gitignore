@@ -1,0 +1,12 @@
+# Secretos: nunca se suben. Se pasan por variables de entorno.
+.env
+.env.*
+!.env.example
+*.key
+*.pem
+credentials/
+
+# Salidas locales de pruebas
+tests/out/
+__pycache__/
+*.pyc
