@@ -3,10 +3,34 @@
   "fecha": "sábado 24 de octubre de 2026",
   "resumen": "La TRM baja a $3.158,43 para el fin de semana (-0,83 %). El riesgo logístico más alto sigue en la Panamericana, entre Cauca y Nariño. El Banco de la República decide su tasa el 30 de octubre.",
   "titulares": [
-    {"etiqueta": "TRM", "valor": "$3.158,43", "cambio": "$26,58 (-0,83 %)", "tendencia": "baja", "nota": "Vigente 24 al 26 oct"},
-    {"etiqueta": "Euro", "valor": "$3.553,10", "cambio": "$22,80 (-0,64 %)", "tendencia": "baja", "nota": "Cierre 23 oct"},
-    {"etiqueta": "Tasa Banrep", "valor": "12,25 %", "cambio": "sin cambio", "tendencia": "igual", "nota": "Próxima reunión: 30 oct"},
-    {"etiqueta": "Inflación anual", "valor": "6,29 %", "cambio": "sin cambio vs. base", "tendencia": "igual", "nota": "Septiembre 2026"}
+    {
+      "etiqueta": "TRM",
+      "valor": "$3.158,43",
+      "cambio": "$26,58 (-0,83 %)",
+      "tendencia": "baja",
+      "nota": "Vigente 24 al 26 oct"
+    },
+    {
+      "etiqueta": "Euro",
+      "valor": "$3.553,10",
+      "cambio": "$22,80 (-0,64 %)",
+      "tendencia": "baja",
+      "nota": "Cierre 23 oct"
+    },
+    {
+      "etiqueta": "Tasa Banrep",
+      "valor": "12,25 %",
+      "cambio": "sin cambio",
+      "tendencia": "igual",
+      "nota": "Próxima reunión: 30 oct"
+    },
+    {
+      "etiqueta": "Inflación anual",
+      "valor": "6,29 %",
+      "cambio": "sin cambio vs. base",
+      "tendencia": "igual",
+      "nota": "Septiembre 2026"
+    }
   ],
   "secciones": [
     {
@@ -21,7 +45,8 @@
           "fuente": "Superfinanciera (datos abiertos)",
           "url": "https://www.datos.gov.co/resource/32sa-8pi3.json",
           "fecha": "vigente del 24 al 26 oct 2026",
-          "estado": "ok"
+          "estado": "ok",
+          "verificacion": "oficial"
         },
         {
           "nombre": "Euro",
@@ -31,7 +56,8 @@
           "efecto": "Ayuda a las importaciones desde Europa.",
           "fuente": "Portafolio (Investing.com)",
           "fecha": "cierre del 23 oct 2026",
-          "estado": "ok"
+          "estado": "ok",
+          "verificacion": "prensa"
         },
         {
           "nombre": "Otras divisas",
@@ -49,7 +75,8 @@
           "efecto": "Riesgo alto de demoras. Evite rodar de noche y agregue margen a las entregas en Cauca y Nariño.",
           "fuente": "Portafolio",
           "fecha": "20 oct 2026",
-          "estado": "desactualizado"
+          "estado": "desactualizado",
+          "verificacion": "prensa"
         },
         {
           "nombre": "Estado en tiempo real de Invías y MinTransporte",
@@ -70,7 +97,8 @@
           "efecto": "Crédito caro para capital de trabajo y leasing de vehículos. 13 de 19 entidades esperan 12,50 % el 30 de octubre.",
           "fuente": "Banco de la República",
           "fecha": "decisión del 30 sep 2026",
-          "estado": "ok"
+          "estado": "ok",
+          "verificacion": "prensa"
         },
         {
           "nombre": "Inflación anual (IPC)",
@@ -80,7 +108,8 @@
           "efecto": "Los costos de operación siguen al alza; negocie ajustes de tarifas.",
           "fuente": "DANE, vía Valora Analitik",
           "fecha": "septiembre 2026",
-          "estado": "ok"
+          "estado": "ok",
+          "verificacion": "prensa"
         }
       ]
     },
@@ -95,10 +124,13 @@
           "efecto": "El diésel no sube este mes, pero el precio internacional está por encima del local: hay riesgo de alza futura.",
           "fuente": "Portafolio / CREG",
           "fecha": "octubre 2026",
-          "estado": "ok"
+          "estado": "ok",
+          "verificacion": "prensa"
         }
       ],
-      "notas": ["No se encontraron noticias recientes de puertos ni aduanas."]
+      "notas": [
+        "No se encontraron noticias recientes de puertos ni aduanas."
+      ]
     }
   ],
   "limitaciones": [

@@ -75,6 +75,22 @@ def main() -> int:
         check("alerta" not in primera.lower(), "sin alerta: la primera línea no menciona alerta")
         check("Alerta:" not in pagina, "sin alerta: el correo no muestra el aviso rojo")
 
+    try:
+        rep = json.loads((d / "reporte.json").read_text(encoding="utf-8"))
+        items = [it for s in rep.get("secciones", []) for it in s.get("items", [])]
+        validos = {"oficial", "prensa", "sin_verificar"}
+        sin_etiqueta = [it.get("nombre", "?") for it in items if it.get("verificacion") not in validos]
+        check(not sin_etiqueta, "todas las cifras dicen si su fuente es oficial, vía prensa o sin verificar"
+              + (f" (faltan: {', '.join(sin_etiqueta[:4])})" if sin_etiqueta else ""))
+        trm_items = [it for it in items if it.get("nombre", "").upper().startswith("TRM")]
+        if trm_items:
+            check(all(it.get("verificacion") == "oficial" for it in trm_items),
+                  "la TRM sale marcada como fuente oficial (viene de datos.gov.co)")
+        check(not any(it.get("verificacion") == "oficial" and not it.get("fuente") for it in items),
+              "ninguna cifra 'oficial' queda sin nombre de fuente")
+    except json.JSONDecodeError:
+        check(False, "reporte.json es JSON válido")
+
     check("baseline" not in md.lower() and "baseline" not in pagina.lower(), "no queda ninguna mención a baseline.json")
     check(not re.search(r"\b(nan|None|undefined)\b", txt), "la versión de texto no tiene nan/None/undefined")
     check("<script" not in pagina.lower(), "el correo no tiene scripts")

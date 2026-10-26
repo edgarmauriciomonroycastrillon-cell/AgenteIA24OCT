@@ -37,6 +37,7 @@ Before you stop, check four things. Every number comes from a page, a search res
 - First line: the result in one line, for example "Reporte económico Colombia – 2026-10-26: TRM $X (sube/baja), evento vial más importante: Y". When there is an alert, the first line starts with the alert text.
 - Then one section per topic, in the order above. Under each indicator: value, source, date, effect.
 - Mark a value "desactualizado" when its date is more than three days old.
+- Give every item the field `verificacion` in `reporte.json`. Use `oficial` only when you opened the official page or data of the organism today. Use `prensa` when a news page quotes it. Use `sin_verificar` when you only saw a search result. Never mark a news page as `oficial`: the reader uses this label to decide how far to trust a number.
 - Last two lines: what you did, and what you could not do.
 
 ## Rules

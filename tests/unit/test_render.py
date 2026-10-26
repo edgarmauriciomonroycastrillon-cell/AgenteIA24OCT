@@ -70,6 +70,27 @@ class Tendencia(unittest.TestCase):
         self.assertIn("!! Alerta: TRM sube 1,57 %", txt)
         self.assertIn("TENDENCIA DE LA SEMANA", txt)
 
+    def test_etiqueta_de_verificacion(self):
+        def con(v):
+            item = {"nombre": "X", "valor": "1", "fuente": "Fuente X", "verificacion": v}
+            return r.item_block(item)
+        self.assertIn("Fuente oficial", con("oficial"))
+        self.assertIn("V&iacute;a prensa", con("prensa"))
+        self.assertIn("Sin verificar", con("sin_verificar"))
+        sin = r.item_block({"nombre": "X", "valor": "1", "fuente": "Fuente X"})
+        self.assertNotIn("Fuente oficial", sin)  # sin el campo no se afirma nada
+        self.assertIn("Fuente:", sin)
+
+    def test_verificacion_en_texto_plano(self):
+        d = {"titulo": "T", "fecha": "F", "resumen": "R", "secciones": [
+            {"titulo": "S", "items": [{"nombre": "TRM", "valor": "1", "fuente": "Superfinanciera", "verificacion": "oficial"}]}]}
+        self.assertIn("Fuente: Fuente oficial · Superfinanciera", r.render_text(d))
+
+    def test_el_diseno_no_usa_la_paleta_anterior(self):
+        html = r.render_html(REPORTE, {"indicadores": [SUFICIENTE], "alertas": []}).lower()
+        for viejo in ("#12263f", "#c8922a", "border-radius"):  # azul marino, dorado, esquinas redondeadas
+            self.assertNotIn(viejo, html)
+
     def test_el_texto_se_escapa(self):
         malo = dict(SUFICIENTE, frase="<script>alert(1)</script>")
         html = r.render_html(REPORTE, {"indicadores": [malo], "alertas": []})

@@ -9,15 +9,15 @@
     "./agents/analista-colombia/agent.md": {
       "kind": "agent",
       "id": "agent_018v718v6WfZ2SbkA1puZjQd",
-      "version": "4",
-      "hash": "0460e38eeb7f55aa52b618c8f897e907",
-      "remote_hash": "0a8fed436c823c6650fce3d3e08367cb"
+      "version": "5",
+      "hash": "8fd4990a1a5a8a975f09409d67bebe38",
+      "remote_hash": "ea0a695aed5392a85a1bd1d31a344975"
     },
     "./agents/analista-colombia/deployment-diario.yaml": {
       "kind": "deployment",
       "id": "depl_01A2ZcVTJY7Cbeb1dCRReHJ3",
-      "hash": "161aaf2721161db2f7b8726543a53ee2",
-      "remote_hash": "161aaf2721161db2f7b8726543a53ee2"
+      "hash": "5a84a6b91454323fd9c5f3c7b61348e2",
+      "remote_hash": "5a84a6b91454323fd9c5f3c7b61348e2"
     },
     "./agents/analista-colombia/environment.yaml": {
       "kind": "environment",
@@ -28,8 +28,8 @@
     "./agents/analista-colombia/memory_store-indicadores.yaml": {
       "kind": "memory_store",
       "id": "memstore_0118tjf9YxcNhP28Joqq9AxP",
-      "hash": "b0543761fdd78ba1245a74e770080b0c",
-      "remote_hash": "b0543761fdd78ba1245a74e770080b0c"
+      "hash": "d850a0b98be742225f03fcf096fb3c74",
+      "remote_hash": "d850a0b98be742225f03fcf096fb3c74"
     },
     "./agents/analista-colombia/vault.yaml": {
       "kind": "vault",
@@ -40,8 +40,8 @@
     "./skills/reporte-correo-html": {
       "kind": "skill",
       "id": "skill_01UbFiNtmj2aDaxmJNz12GvR",
-      "version": "skver_01Xdhqa49c8vTBKzBwRuFV1e",
-      "hash": "bf4a95abfef132a31f882e7492990fcc"
+      "version": "skver_017rVFVXBzBhokqkYLMnVmkm",
+      "hash": "f8603c952b44aac7744db39af80909b2"
     }
   }
 }

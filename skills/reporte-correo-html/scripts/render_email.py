@@ -2,10 +2,13 @@
 """Render reporte.json into an email-safe HTML file and a plain-text twin.
 
 Usage:
-  python3 render_email.py reporte.json --out /mnt/session/outputs
+  python3 render_email.py reporte.json --tendencia tendencias.json --out /mnt/session/outputs
 
 Writes <out>/reporte.html and <out>/reporte.txt. Standard library only.
 All text in the JSON is plain text: this script escapes it, so never put HTML in it.
+
+Design: a printed economic bulletin. Cream paper, serif type, dark green ink, terracotta accent,
+rules and tables instead of boxed cards. Tables and inline styles only, so Gmail and Outlook keep it.
 """
 
 from __future__ import annotations
@@ -16,24 +19,32 @@ import json
 import sys
 from pathlib import Path
 
-NAVY = "#12263f"
-ACCENT = "#c8922a"
-INK = "#1f2937"
-MUTED = "#6b7280"
-LINE = "#e5e7eb"
-BG = "#f3f4f6"
-CARD = "#ffffff"
-FONT = "Segoe UI,Helvetica,Arial,sans-serif"
+FONDO = "#e9e3d3"   # fuera del papel
+PAPEL = "#fbf9f3"
+TINTA = "#222a25"
+VERDE = "#2f5d46"
+TERRA = "#b0502b"
+GRIS = "#6d6b60"
+REGLA = "#d9d1bd"
+OCRE = "#8a6d1f"
+SERIF = "Georgia,'Times New Roman',serif"
+SANS = "Helvetica,Arial,sans-serif"
 
-TREND = {
-    "sube": ("&#9650;", "#b45309"),
-    "baja": ("&#9660;", "#1d4ed8"),
-    "igual": ("&#9632;", "#6b7280"),
+TREND = {  # colores neutros a propósito: que un número suba no es bueno ni malo por sí solo
+    "sube": ("&#9650;", "#a8451f"),
+    "baja": ("&#9660;", "#2b6e63"),
+    "igual": ("&#9632;", GRIS),
 }
 STATE = {
-    "desactualizado": ("Desactualizado", "#fef3c7", "#92400e"),
-    "no_encontrado": ("No encontrado", "#e5e7eb", "#374151"),
+    "desactualizado": ("desactualizado", OCRE),
+    "no_encontrado": ("no encontrado", GRIS),
 }
+VERIF = {
+    "oficial": ("Fuente oficial", VERDE),
+    "prensa": ("V&iacute;a prensa", GRIS),
+    "sin_verificar": ("Sin verificar", TERRA),
+}
+VERIF_TXT = {"oficial": "Fuente oficial", "prensa": "Vía prensa", "sin_verificar": "Sin verificar"}
 
 
 def esc(value) -> str:
@@ -49,24 +60,38 @@ def trend_of(item: dict):
     return TREND.get(str(item.get("tendencia", "")).lower())
 
 
-def kpi_cell(k: dict) -> str:
-    arrow = ""
+def etiqueta_chica(texto: str, color: str = GRIS) -> str:
+    return (f'<span style="font-family:{SANS};font-size:11px;letter-spacing:.12em;text-transform:uppercase;'
+            f'color:{color};">{texto}</span>')
+
+
+def titulo_seccion(texto: str) -> str:
+    return (
+        f'<tr><td style="padding:26px 24px 2px 24px;"><div style="font-family:{SERIF};font-size:21px;color:{VERDE};'
+        f'border-bottom:1px solid {REGLA};padding-bottom:5px;">{texto}</div></td></tr>'
+    )
+
+
+# ---------- resumen en una mirada ----------
+
+def kpi_row(k: dict) -> str:
     t = trend_of(k)
     cambio = esc(k.get("cambio", ""))
-    if t and cambio:
-        arrow = f'<div style="font-size:13px;color:{t[1]};margin-top:2px;">{t[0]} {cambio}</div>'
-    elif cambio:
-        arrow = f'<div style="font-size:13px;color:{MUTED};margin-top:2px;">{cambio}</div>'
+    if cambio:
+        color = t[1] if t else GRIS
+        flecha = f"{t[0]} " if t else ""
+        cambio_html = f'<span style="font-family:{SANS};font-size:13px;color:{color};">{flecha}{cambio}</span>'
+    else:
+        cambio_html = ""
     nota = esc(k.get("nota", ""))
-    nota_html = f'<div style="font-size:11px;color:{MUTED};margin-top:4px;">{nota}</div>' if nota else ""
+    nota_html = f'<div style="font-family:{SANS};font-size:11px;color:{GRIS};margin-top:2px;">{nota}</div>' if nota else ""
     return (
-        f'<td width="50%" valign="top" style="padding:6px;">'
-        f'<table role="presentation" width="100%" cellpadding="0" cellspacing="0" '
-        f'style="background:{CARD};border:1px solid {LINE};border-top:3px solid {ACCENT};border-radius:8px;">'
-        f'<tr><td style="padding:12px 14px;font-family:{FONT};">'
-        f'<div style="font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:{MUTED};">{esc(k.get("etiqueta", ""))}</div>'
-        f'<div style="font-size:22px;font-weight:700;color:{NAVY};margin-top:4px;">{esc(k.get("valor", ""))}</div>'
-        f"{arrow}{nota_html}</td></tr></table></td>"
+        f'<tr><td style="padding:9px 0;border-bottom:1px solid {REGLA};">'
+        f'<table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr>'
+        f'<td width="34%" valign="top">{etiqueta_chica(esc(k.get("etiqueta", "")))}{nota_html}</td>'
+        f'<td width="30%" valign="top" align="right" style="font-family:{SERIF};font-size:19px;color:{TINTA};">{esc(k.get("valor", ""))}</td>'
+        f'<td width="36%" valign="top" align="right" style="padding-left:6px;">{cambio_html}</td>'
+        f"</tr></table></td></tr>"
     )
 
 
@@ -74,83 +99,77 @@ def kpi_block(kpis: list) -> str:
     kpis = kpis[:4]
     if not kpis:
         return ""
-    rows = []
-    for i in range(0, len(kpis), 2):
-        pair = kpis[i : i + 2]
-        cells = "".join(kpi_cell(k) for k in pair)
-        if len(pair) == 1:
-            cells += '<td width="50%" style="padding:6px;">&nbsp;</td>'
-        rows.append(f"<tr>{cells}</tr>")
+    rows = "".join(kpi_row(k) for k in kpis)
     return (
-        f'<tr><td style="padding:14px 18px 0 18px;"><table role="presentation" width="100%" '
-        f'cellpadding="0" cellspacing="0">{"".join(rows)}</table></td></tr>'
+        titulo_seccion("En una mirada")
+        + f'<tr><td style="padding:0 24px;"><table role="presentation" width="100%" cellpadding="0" cellspacing="0">{rows}</table></td></tr>'
     )
 
+
+# ---------- secciones e indicadores ----------
 
 def item_block(it: dict) -> str:
     parts = []
     estado = STATE.get(str(it.get("estado", "")).lower())
-    badge = ""
+    marca = ""
     if estado:
-        badge = (
-            f' <span style="display:inline-block;font-size:11px;font-weight:600;padding:2px 8px;'
-            f'border-radius:10px;background:{estado[1]};color:{estado[2]};vertical-align:middle;">{estado[0]}</span>'
-        )
-    parts.append(
-        f'<div style="font-size:15px;font-weight:700;color:{NAVY};">{esc(it.get("nombre", ""))}{badge}</div>'
-    )
+        marca = (f' <span style="font-family:{SANS};font-size:10px;font-weight:normal;letter-spacing:.1em;'
+                 f'text-transform:uppercase;color:{estado[1]};border:1px solid {estado[1]};padding:1px 5px;'
+                 f'white-space:nowrap;">{estado[0]}</span>')
+    parts.append(f'<div style="font-family:{SANS};font-size:14px;font-weight:bold;color:{TINTA};">{esc(it.get("nombre", ""))}{marca}</div>')
     valor = esc(it.get("valor", ""))
     if valor:
-        parts.append(f'<div style="font-size:20px;font-weight:700;color:{INK};margin-top:4px;">{valor}</div>')
+        parts.append(f'<div style="font-family:{SERIF};font-size:21px;color:{TINTA};margin-top:3px;">{valor}</div>')
     cambio = esc(it.get("cambio", ""))
     t = trend_of(it)
     if cambio:
-        color = t[1] if t else MUTED
-        arrow = f"{t[0]} " if t else ""
-        parts.append(f'<div style="font-size:13px;color:{color};margin-top:2px;">{arrow}{cambio}</div>')
+        color = t[1] if t else GRIS
+        flecha = f"{t[0]} " if t else ""
+        parts.append(f'<div style="font-family:{SANS};font-size:13px;color:{color};margin-top:2px;">{flecha}{cambio}</div>')
     detalle = esc(it.get("detalle", ""))
     if detalle:
-        parts.append(f'<div style="font-size:14px;color:{INK};margin-top:8px;line-height:1.5;">{detalle}</div>')
+        parts.append(f'<div style="font-family:{SERIF};font-size:15px;color:{TINTA};margin-top:8px;line-height:1.55;">{detalle}</div>')
     efecto = esc(it.get("efecto", ""))
     if efecto:
         parts.append(
-            f'<div style="font-size:14px;color:{INK};margin-top:8px;line-height:1.5;background:#f9fafb;'
-            f'border-left:3px solid {ACCENT};padding:8px 10px;"><strong>Impacto:</strong> {efecto}</div>'
+            f'<div style="font-family:{SERIF};font-size:15px;color:{TINTA};margin-top:8px;line-height:1.55;'
+            f'border-left:2px solid {TERRA};padding-left:10px;"><i>Impacto.</i> {efecto}</div>'
         )
     fuente = esc(it.get("fuente", ""))
     fecha = esc(it.get("fecha", ""))
     url = safe_url(it.get("url"))
-    if fuente or fecha:
+    verif = VERIF.get(str(it.get("verificacion", "")).lower())
+    if fuente or fecha or verif:
         src = fuente
         if url and fuente:
-            src = f'<a href="{esc(url)}" style="color:{MUTED};text-decoration:underline;">{fuente}</a>'
-        bits = [b for b in (src, fecha) if b]
-        parts.append(
-            f'<div style="font-size:12px;color:{MUTED};margin-top:8px;">Fuente: {" &middot; ".join(bits)}</div>'
-        )
-    return (
-        f'<tr><td style="padding:6px 18px;"><table role="presentation" width="100%" cellpadding="0" '
-        f'cellspacing="0" style="background:{CARD};border:1px solid {LINE};border-radius:8px;">'
-        f'<tr><td style="padding:14px 16px;font-family:{FONT};">{"".join(parts)}</td></tr></table></td></tr>'
-    )
+            src = f'<a href="{esc(url)}" style="color:{GRIS};text-decoration:underline;">{fuente}</a>'
+        bits = []
+        if verif:
+            bits.append(f'<b style="color:{verif[1]};">{verif[0]}</b>')
+        elif src:
+            bits.append("Fuente:")
+        if src:
+            bits.append(src)
+        if fecha:
+            bits.append(fecha)
+        parts.append(f'<div style="font-family:{SANS};font-size:12px;color:{GRIS};margin-top:8px;">{" &middot; ".join(bits)}</div>')
+    return f'<tr><td style="padding:14px 24px;border-bottom:1px solid {REGLA};">{"".join(parts)}</td></tr>'
 
 
 def section_block(sec: dict) -> str:
-    out = [
-        f'<tr><td style="padding:22px 18px 4px 18px;font-family:{FONT};">'
-        f'<div style="font-size:19px;font-weight:700;color:{NAVY};border-left:4px solid {ACCENT};'
-        f'padding:2px 0 2px 10px;">{esc(sec.get("titulo", ""))}</div></td></tr>'
-    ]
+    out = [titulo_seccion(esc(sec.get("titulo", "")))]
     out += [item_block(it) for it in sec.get("items", [])]
     notas = [n for n in sec.get("notas", []) if str(n).strip()]
     if notas:
         lis = "".join(f'<li style="margin:4px 0;">{esc(n)}</li>' for n in notas)
         out.append(
-            f'<tr><td style="padding:6px 18px 0 18px;font-family:{FONT};font-size:14px;color:{INK};line-height:1.5;">'
+            f'<tr><td style="padding:10px 24px 0 24px;font-family:{SERIF};font-size:14px;color:{GRIS};line-height:1.5;">'
             f'<ul style="margin:0;padding-left:20px;">{lis}</ul></td></tr>'
         )
     return "".join(out)
 
+
+# ---------- alerta y tendencia ----------
 
 def alerta_block(t: dict | None) -> str:
     alertas = (t or {}).get("alertas") or []
@@ -158,10 +177,10 @@ def alerta_block(t: dict | None) -> str:
         return ""
     lines = "".join(f'<div style="margin:2px 0;">{esc(a.get("texto", ""))}</div>' for a in alertas)
     return (
-        f'<tr><td style="padding:14px 18px 0 18px;"><table role="presentation" width="100%" cellpadding="0" '
-        f'cellspacing="0" style="background:#fef2f2;border:1px solid #fecaca;border-left:4px solid #dc2626;'
-        f'border-radius:8px;"><tr><td style="padding:12px 16px;font-family:{FONT};font-size:14px;'
-        f'font-weight:600;color:#7f1d1d;line-height:1.5;">&#9888; {lines}</td></tr></table></td></tr>'
+        f'<tr><td style="padding:16px 24px 0 24px;"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" '
+        f'style="border-top:3px solid {TERRA};border-bottom:1px solid {TERRA};"><tr>'
+        f'<td style="padding:10px 0;font-family:{SANS};font-size:14px;font-weight:bold;color:{TERRA};line-height:1.5;">{lines}</td>'
+        f"</tr></table></td></tr>"
     )
 
 
@@ -175,29 +194,26 @@ def tendencia_card(i: dict) -> str:
         # 16 px y una columna: 20 bloques miden ~210 px y caben en un celular de 320 px.
         spark = (
             f'<div style="font-family:Consolas,Menlo,\'Courier New\',monospace;font-size:16px;line-height:1.1;'
-            f'letter-spacing:1px;color:{NAVY};white-space:nowrap;overflow:hidden;">{esc(i.get("sparkline", ""))}</div>'
-            f'<div style="font-size:11px;color:{MUTED};margin-top:3px;">&uacute;ltimos {esc(i.get("spark_dias", ""))} d&iacute;as h&aacute;biles</div>'
+            f'letter-spacing:1px;color:{VERDE};white-space:nowrap;overflow:hidden;">{esc(i.get("sparkline", ""))}</div>'
+            f'<div style="font-family:{SANS};font-size:11px;color:{GRIS};margin-top:3px;">&uacute;ltimos {esc(i.get("spark_dias", ""))} d&iacute;as h&aacute;biles</div>'
         )
         chip = (
-            f' <span style="font-size:13px;font-weight:600;color:{t[1]};white-space:nowrap;">{t[0]} {esc(v.get("texto_corto", ""))}'
-            f' <span style="font-weight:400;color:{MUTED};">en {esc(v.get("dias", ""))} d</span></span>'
+            f' <span style="font-family:{SANS};font-size:13px;color:{t[1]};white-space:nowrap;">{t[0]} {esc(v.get("texto_corto", ""))}'
+            f' <span style="color:{GRIS};">en {esc(v.get("dias", ""))} d</span></span>'
         )
     else:
         spark = (
-            f'<span style="display:inline-block;font-size:11px;font-weight:600;padding:2px 8px;border-radius:10px;'
-            f'background:#e5e7eb;color:#374151;">Historial insuficiente</span>'
-            f'<div style="font-size:11px;color:{MUTED};margin-top:4px;">{esc(i.get("n_dias", 0))} de 5 d&iacute;as h&aacute;biles</div>'
+            f'<div style="font-family:{SANS};font-size:12px;color:{GRIS};">'
+            f'<b style="text-transform:uppercase;letter-spacing:.1em;font-size:10px;border:1px solid {GRIS};padding:1px 5px;">Historial insuficiente</b>'
+            f' &nbsp;{esc(i.get("n_dias", 0))} de 5 d&iacute;as h&aacute;biles</div>'
         )
         chip = ""
     return (
-        f'<tr><td style="padding:6px 18px;"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" '
-        f'style="background:{CARD};border:1px solid {LINE};border-radius:8px;"><tr>'
-        f'<td style="padding:12px 14px;font-family:{FONT};">'
-        f'<div style="font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:{MUTED};">{etiqueta}</div>'
-        f'<div style="margin-top:2px;"><span style="font-size:18px;font-weight:700;color:{NAVY};">{valor}</span>{chip}</div>'
+        f'<tr><td style="padding:14px 24px;border-bottom:1px solid {REGLA};">'
+        f'<div>{etiqueta_chica(etiqueta)}</div>'
+        f'<div style="margin-top:2px;"><span style="font-family:{SERIF};font-size:20px;color:{TINTA};">{valor}</span>{chip}</div>'
         f'<div style="margin-top:8px;">{spark}</div>'
-        f'<div style="margin-top:8px;font-size:13px;color:{INK};line-height:1.5;">{frase}</div></td></tr>'
-        f"</table></td></tr>"
+        f'<div style="margin-top:8px;font-family:{SERIF};font-size:14px;color:{TINTA};line-height:1.55;">{frase}</div></td></tr>'
     )
 
 
@@ -205,15 +221,12 @@ def tendencia_block(t: dict | None) -> str:
     inds = (t or {}).get("indicadores") or []
     if not inds:
         return ""
-    head = (
-        f'<tr><td style="padding:22px 18px 4px 18px;font-family:{FONT};">'
-        f'<div style="font-size:19px;font-weight:700;color:{NAVY};border-left:4px solid {ACCENT};'
-        f'padding:2px 0 2px 10px;">Tendencia de la semana</div>'
-        f'<div style="font-size:12px;color:{MUTED};margin:6px 0 0 14px;">Calculada con el historial guardado, no estimada. '
-        f'Con menos de 5 d&iacute;as h&aacute;biles no se calcula.</div></td></tr>'
-    )
-    return head + "".join(tendencia_card(i) for i in inds)
+    nota = (f'<tr><td style="padding:6px 24px 0 24px;font-family:{SERIF};font-size:13px;font-style:italic;color:{GRIS};line-height:1.5;">'
+            f'Calculada con el historial guardado, no estimada. Con menos de 5 d&iacute;as h&aacute;biles no se calcula.</td></tr>')
+    return titulo_seccion("Tendencia de la semana") + nota + "".join(tendencia_card(i) for i in inds)
 
+
+# ---------- documento ----------
 
 def render_html(d: dict, t: dict | None = None) -> str:
     kpis = kpi_block(d.get("titulares", [])) + tendencia_block(t)
@@ -224,33 +237,36 @@ def render_html(d: dict, t: dict | None = None) -> str:
     if lim:
         lis = "".join(f'<li style="margin:4px 0;">{esc(x)}</li>' for x in lim)
         lim_html = (
-            f'<tr><td style="padding:22px 18px 0 18px;"><table role="presentation" width="100%" cellpadding="0" '
-            f'cellspacing="0" style="background:#fffbeb;border:1px solid #fde68a;border-radius:8px;"><tr>'
-            f'<td style="padding:12px 16px;font-family:{FONT};font-size:13px;color:#78350f;line-height:1.5;">'
-            f"<strong>Lo que no pude verificar hoy</strong>"
-            f'<ul style="margin:6px 0 0 0;padding-left:20px;">{lis}</ul></td></tr></table></td></tr>'
+            titulo_seccion("Lo que no se pudo verificar hoy")
+            + f'<tr><td style="padding:8px 24px 0 24px;font-family:{SERIF};font-size:14px;color:{GRIS};line-height:1.5;">'
+            f'<ul style="margin:0;padding-left:20px;">{lis}</ul></td></tr>'
         )
     resumen = esc(d.get("resumen", ""))
     pie = esc(d.get("pie", "Reporte generado automáticamente. Verifique las cifras en la fuente antes de decidir. No es asesoría financiera."))
+    leyenda = ("<b>Fuente oficial</b>: la p&aacute;gina o los datos abiertos del organismo, abiertos hoy. "
+               "<b>V&iacute;a prensa</b>: un medio que cita al organismo. <b>Sin verificar</b>: solo un resultado de b&uacute;squeda.")
     return f"""<!doctype html>
 <html lang="es"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="color-scheme" content="light">
+<meta name="supported-color-schemes" content="light">
 <title>{esc(d.get("titulo", "Reporte"))}</title></head>
-<body style="margin:0;padding:0;background:{BG};">
+<body style="margin:0;padding:0;background:{FONDO};">
 <div style="display:none;max-height:0;overflow:hidden;opacity:0;">{resumen}</div>
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:{BG};"><tr><td align="center" style="padding:16px 8px;">
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:640px;background:{BG};">
-<tr><td bgcolor="{NAVY}" style="background:{NAVY};border-radius:10px 10px 0 0;padding:22px 22px 18px 22px;font-family:{FONT};">
-<div style="font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:{ACCENT};font-weight:700;">Analista económico &middot; Colombia</div>
-<div style="font-size:24px;font-weight:700;color:#ffffff;margin-top:6px;">{esc(d.get("titulo", "Reporte económico"))}</div>
-<div style="font-size:13px;color:#cbd5e1;margin-top:4px;">{esc(d.get("fecha", ""))}</div></td></tr>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:{FONDO};"><tr><td align="center" style="padding:16px 8px;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:640px;background:{PAPEL};border-top:5px solid {VERDE};">
+<tr><td style="padding:22px 24px 14px 24px;border-bottom:3px double #b9ae92;">
+<div>{etiqueta_chica("Bolet&iacute;n econ&oacute;mico &middot; Colombia", TERRA)}</div>
+<div style="font-family:{SERIF};font-size:29px;line-height:1.15;color:{TINTA};margin-top:8px;">{esc(d.get("titulo", "Reporte económico"))}</div>
+<div style="font-family:{SERIF};font-size:14px;font-style:italic;color:{GRIS};margin-top:6px;">{esc(d.get("fecha", ""))}</div></td></tr>
 {alerta}
-<tr><td style="padding:16px 22px 0 22px;font-family:{FONT};font-size:15px;color:{INK};line-height:1.55;background:{BG};">{resumen}</td></tr>
+<tr><td style="padding:18px 24px 0 24px;font-family:{SERIF};font-size:17px;color:{TINTA};line-height:1.6;">{resumen}</td></tr>
 {kpis}
 {sections}
 {lim_html}
-<tr><td style="padding:24px 22px 8px 22px;font-family:{FONT};font-size:11px;color:{MUTED};line-height:1.5;text-align:center;">{pie}</td></tr>
+<tr><td style="padding:28px 24px 6px 24px;font-family:{SANS};font-size:11px;color:{GRIS};line-height:1.6;border-top:1px solid {REGLA};">
+<div>{leyenda}</div><div style="margin-top:8px;">{pie}</div></td></tr>
+<tr><td style="height:12px;line-height:12px;">&nbsp;</td></tr>
 </table></td></tr></table></body></html>"""
 
 
@@ -278,13 +294,13 @@ def render_text(d: dict, t: dict | None = None) -> str:
             for key, label in (("detalle", ""), ("efecto", "Impacto: ")):
                 if it.get(key):
                     lines.append(f"  {label}{it[key]}")
-            src = " · ".join(x for x in (it.get("fuente"), it.get("fecha")) if x)
+            src = " · ".join(x for x in (VERIF_TXT.get(it.get("verificacion", "")), it.get("fuente"), it.get("fecha")) if x)
             if src:
                 lines.append(f"  Fuente: {src}")
         for n in s.get("notas", []):
             lines.append(f"  - {n}")
     if d.get("limitaciones"):
-        lines += ["", "LO QUE NO PUDE VERIFICAR HOY"]
+        lines += ["", "LO QUE NO SE PUDO VERIFICAR HOY"]
         lines += [f"  - {x}" for x in d["limitaciones"]]
     lines += ["", str(d.get("pie", "Reporte generado automáticamente. No es asesoría financiera."))]
     return "\n".join(lines) + "\n"

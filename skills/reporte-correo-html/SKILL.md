@@ -96,6 +96,7 @@ more than 1 % in one day.
           "fuente": "Superfinanciera (datos.gov.co)",
           "url": "https://www.datos.gov.co/resource/32sa-8pi3.json",
           "fecha": "vigente 24 al 26 oct 2026",
+          "verificacion": "oficial",
           "estado": "ok"
         }
       ],
@@ -116,6 +117,11 @@ Field rules:
   Leave it out otherwise. The colors are neutral on purpose: a rising number is not good or bad by itself.
 - `estado`: `ok` (or leave out), `desactualizado` (the date is more than three days old), or
   `no_encontrado` (you did not find the value; put "No encontrado" in `valor`).
+- `verificacion`: always set it. The email shows it next to the source, so the reader knows how far to trust the number.
+  - `oficial`: you opened the official page or the open data of the organism today. For the TRM, the output of `sembrar-trm` counts.
+  - `prensa`: a news page quotes the organism. Use this when an official site blocked the page.
+  - `sin_verificar`: you only saw a search result and did not open the page.
+  Never mark a news page as `oficial`. When in doubt, use the lower level.
 - `url`: only a page you opened. Leave it out if you are not sure.
 - Sections, in this order: Divisas, Logística/Vías, Indicadores Macroeconómicos, Otros eventos relevantes.
 - `limitaciones`: always list what is missing. An honest gap is better than a guessed number.
