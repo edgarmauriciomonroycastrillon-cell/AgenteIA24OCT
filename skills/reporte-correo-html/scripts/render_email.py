@@ -152,8 +152,72 @@ def section_block(sec: dict) -> str:
     return "".join(out)
 
 
-def render_html(d: dict) -> str:
-    kpis = kpi_block(d.get("titulares", []))
+def alerta_block(t: dict | None) -> str:
+    alertas = (t or {}).get("alertas") or []
+    if not alertas:
+        return ""
+    lines = "".join(f'<div style="margin:2px 0;">{esc(a.get("texto", ""))}</div>' for a in alertas)
+    return (
+        f'<tr><td style="padding:14px 18px 0 18px;"><table role="presentation" width="100%" cellpadding="0" '
+        f'cellspacing="0" style="background:#fef2f2;border:1px solid #fecaca;border-left:4px solid #dc2626;'
+        f'border-radius:8px;"><tr><td style="padding:12px 16px;font-family:{FONT};font-size:14px;'
+        f'font-weight:600;color:#7f1d1d;line-height:1.5;">&#9888; {lines}</td></tr></table></td></tr>'
+    )
+
+
+def tendencia_card(i: dict) -> str:
+    etiqueta = esc(i.get("etiqueta", ""))
+    valor = esc((i.get("ultimo") or {}).get("texto", ""))
+    frase = esc(i.get("frase", ""))
+    if i.get("suficiente") and i.get("variacion"):
+        v = i["variacion"]
+        t = TREND.get(v.get("direccion", ""), TREND["igual"])
+        # 16 px y una columna: 20 bloques miden ~210 px y caben en un celular de 320 px.
+        spark = (
+            f'<div style="font-family:Consolas,Menlo,\'Courier New\',monospace;font-size:16px;line-height:1.1;'
+            f'letter-spacing:1px;color:{NAVY};white-space:nowrap;overflow:hidden;">{esc(i.get("sparkline", ""))}</div>'
+            f'<div style="font-size:11px;color:{MUTED};margin-top:3px;">&uacute;ltimos {esc(i.get("spark_dias", ""))} d&iacute;as h&aacute;biles</div>'
+        )
+        chip = (
+            f' <span style="font-size:13px;font-weight:600;color:{t[1]};white-space:nowrap;">{t[0]} {esc(v.get("texto_corto", ""))}'
+            f' <span style="font-weight:400;color:{MUTED};">en {esc(v.get("dias", ""))} d</span></span>'
+        )
+    else:
+        spark = (
+            f'<span style="display:inline-block;font-size:11px;font-weight:600;padding:2px 8px;border-radius:10px;'
+            f'background:#e5e7eb;color:#374151;">Historial insuficiente</span>'
+            f'<div style="font-size:11px;color:{MUTED};margin-top:4px;">{esc(i.get("n_dias", 0))} de 5 d&iacute;as h&aacute;biles</div>'
+        )
+        chip = ""
+    return (
+        f'<tr><td style="padding:6px 18px;"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" '
+        f'style="background:{CARD};border:1px solid {LINE};border-radius:8px;"><tr>'
+        f'<td style="padding:12px 14px;font-family:{FONT};">'
+        f'<div style="font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:{MUTED};">{etiqueta}</div>'
+        f'<div style="margin-top:2px;"><span style="font-size:18px;font-weight:700;color:{NAVY};">{valor}</span>{chip}</div>'
+        f'<div style="margin-top:8px;">{spark}</div>'
+        f'<div style="margin-top:8px;font-size:13px;color:{INK};line-height:1.5;">{frase}</div></td></tr>'
+        f"</table></td></tr>"
+    )
+
+
+def tendencia_block(t: dict | None) -> str:
+    inds = (t or {}).get("indicadores") or []
+    if not inds:
+        return ""
+    head = (
+        f'<tr><td style="padding:22px 18px 4px 18px;font-family:{FONT};">'
+        f'<div style="font-size:19px;font-weight:700;color:{NAVY};border-left:4px solid {ACCENT};'
+        f'padding:2px 0 2px 10px;">Tendencia de la semana</div>'
+        f'<div style="font-size:12px;color:{MUTED};margin:6px 0 0 14px;">Calculada con el historial guardado, no estimada. '
+        f'Con menos de 5 d&iacute;as h&aacute;biles no se calcula.</div></td></tr>'
+    )
+    return head + "".join(tendencia_card(i) for i in inds)
+
+
+def render_html(d: dict, t: dict | None = None) -> str:
+    kpis = kpi_block(d.get("titulares", [])) + tendencia_block(t)
+    alerta = alerta_block(t)
     sections = "".join(section_block(s) for s in d.get("secciones", []))
     lim = [x for x in d.get("limitaciones", []) if str(x).strip()]
     lim_html = ""
@@ -181,6 +245,7 @@ def render_html(d: dict) -> str:
 <div style="font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:{ACCENT};font-weight:700;">Analista económico &middot; Colombia</div>
 <div style="font-size:24px;font-weight:700;color:#ffffff;margin-top:6px;">{esc(d.get("titulo", "Reporte económico"))}</div>
 <div style="font-size:13px;color:#cbd5e1;margin-top:4px;">{esc(d.get("fecha", ""))}</div></td></tr>
+{alerta}
 <tr><td style="padding:16px 22px 0 22px;font-family:{FONT};font-size:15px;color:{INK};line-height:1.55;background:{BG};">{resumen}</td></tr>
 {kpis}
 {sections}
@@ -189,10 +254,18 @@ def render_html(d: dict) -> str:
 </table></td></tr></table></body></html>"""
 
 
-def render_text(d: dict) -> str:
-    lines = [str(d.get("titulo", "Reporte")), str(d.get("fecha", "")), "", str(d.get("resumen", "")), ""]
+def render_text(d: dict, t: dict | None = None) -> str:
+    lines = [str(d.get("titulo", "Reporte")), str(d.get("fecha", "")), ""]
+    for a in (t or {}).get("alertas") or []:
+        lines.append(f'!! {a.get("texto", "")}')
+    lines += ["", str(d.get("resumen", "")), ""]
     for k in d.get("titulares", [])[:4]:
         lines.append(f'* {k.get("etiqueta", "")}: {k.get("valor", "")} {k.get("cambio", "")}'.rstrip())
+    if (t or {}).get("indicadores"):
+        lines += ["", "TENDENCIA DE LA SEMANA", "-" * 30]
+        for i in t["indicadores"]:
+            spark = f' {i["sparkline"]}' if i.get("sparkline") else ""
+            lines.append(f'{i.get("frase", "")}{spark}')
     for s in d.get("secciones", []):
         lines += ["", str(s.get("titulo", "")).upper(), "-" * 30]
         for it in s.get("items", []):
@@ -234,6 +307,7 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("json_file")
     ap.add_argument("--out", default=".")
+    ap.add_argument("--tendencia", help="tendencias.json de tendencia.py: agrega la alerta y la sección de tendencia")
     args = ap.parse_args()
     try:
         data = json.loads(Path(args.json_file).read_text(encoding="utf-8"))
@@ -244,10 +318,17 @@ def main() -> int:
     if problems:
         print("ERROR: reporte.json incompleto: " + "; ".join(problems), file=sys.stderr)
         return 2
+    tend = None
+    if args.tendencia:
+        try:
+            tend = json.loads(Path(args.tendencia).read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError) as e:
+            print(f"ERROR: no pude leer {args.tendencia} como JSON válido: {e}", file=sys.stderr)
+            return 2
     out = Path(args.out)
     out.mkdir(parents=True, exist_ok=True)
-    (out / "reporte.html").write_text(render_html(data), encoding="utf-8")
-    (out / "reporte.txt").write_text(render_text(data), encoding="utf-8")
+    (out / "reporte.html").write_text(render_html(data, tend), encoding="utf-8")
+    (out / "reporte.txt").write_text(render_text(data, tend), encoding="utf-8")
     print(f"ok: {out / 'reporte.html'} y {out / 'reporte.txt'}")
     return 0
 

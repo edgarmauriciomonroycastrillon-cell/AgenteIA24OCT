@@ -288,8 +288,15 @@ def analizar(clave: str, puntos: list) -> dict:
                           f"({'+' if pct > 0 else ''}{fmt_es(pct, 2)} %) en {pasos} días hábiles.")
     minimo = {"fecha": fechas[i_min].isoformat(), "valor": vals[i_min], "texto": fmt_valor(clave, vals[i_min])}
     maximo = {"fecha": fechas[i_max].isoformat(), "valor": vals[i_max], "texto": fmt_valor(clave, vals[i_max])}
+    if sd == 0:
+        corto = "sin cambio"
+    elif es_tasa:
+        corto = f"{'+' if d > 0 else '-'}{fmt_es(abs(d), m['dec'])} pp"
+    else:
+        corto = f"{'+' if pct > 0 else ''}{fmt_es(pct, 2)} %"
     base.update({
-        "variacion": {"dias": pasos, "abs": round(d, 6), "pct": round(pct, 4)},
+        "variacion": {"dias": pasos, "abs": round(d, 6), "pct": round(pct, 4),
+                      "direccion": {1: "sube", -1: "baja", 0: "igual"}[sd], "texto_corto": corto},
         "minimo": minimo, "maximo": maximo,
         "racha": {"direccion": nombre_dir, "dias": k},
         "sparkline": spark(vals[-SPARK_PUNTOS:]), "spark_dias": len(vals[-SPARK_PUNTOS:]),

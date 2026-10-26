@@ -150,6 +150,13 @@ class Calculo(unittest.TestCase):
         self.assertEqual(r["minimo"]["valor"], 3000)
         self.assertEqual(r["maximo"]["valor"], 3060)
 
+    def test_variacion_trae_direccion_y_texto_corto(self):
+        v = self.analizar([3000, 3010, 3020, 3030, 3040, 3050, 3060])["variacion"]
+        self.assertEqual(v["direccion"], "sube")
+        self.assertEqual(v["texto_corto"], "+1,66 %")
+        v = self.analizar([12.0] * 5 + [12.25], clave="tasa_politica_banrep")["variacion"]
+        self.assertEqual(v["texto_corto"], "+0,25 pp")
+
     def test_racha_cuenta_dias_seguidos(self):
         r = self.analizar([3100, 3090, 3080, 3085, 3084, 3083, 3082])  # sube 1 vez y luego baja 3
         self.assertEqual(r["racha"], {"direccion": "baja", "dias": 3})
