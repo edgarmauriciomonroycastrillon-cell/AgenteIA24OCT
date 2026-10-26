@@ -37,8 +37,6 @@ CAMPOS = ["fecha", "indicador", "valor", "fuente"]
 MAX_DIAS = 90  # cuánto historial se guarda
 MIN_PUNTOS = 5  # con menos días hábiles no se calcula tendencia
 VENTANA = 5  # días hábiles para la variación
-SPARK_PUNTOS = 20  # cuántos días caben en la mini gráfica
-BLOQUES = "▁▂▃▄▅▆▇█"
 TRM_URL = "https://www.datos.gov.co/resource/32sa-8pi3.json"
 TRM_FUENTE = "Superfinanciera (datos.gov.co)"
 
@@ -232,13 +230,6 @@ def cmd_agregar(args, hoy: dt.date) -> int:
 
 # ---------- calcular ----------
 
-def spark(valores: list) -> str:
-    lo, hi = min(valores), max(valores)
-    if hi - lo < 1e-12:
-        return BLOQUES[3] * len(valores)
-    return "".join(BLOQUES[min(7, int((v - lo) / (hi - lo) * 8))] for v in valores)
-
-
 def signo(x: float, dec: int) -> int:
     r = round(x, dec)
     return 0 if r == 0 else (1 if r > 0 else -1)
@@ -252,8 +243,7 @@ def analizar(clave: str, puntos: list) -> dict:
     vals = [p[1] for p in puntos]
     ultimo = {"fecha": fechas[-1].isoformat(), "valor": vals[-1], "texto": fmt_valor(clave, vals[-1])}
     base = {"clave": clave, "etiqueta": m["etiqueta"], "n_dias": n, "suficiente": n >= MIN_PUNTOS,
-            "ultimo": ultimo, "variacion": None, "minimo": None, "maximo": None, "racha": None,
-            "sparkline": "", "spark_dias": 0}
+            "ultimo": ultimo, "variacion": None, "minimo": None, "maximo": None, "racha": None}
     if n < MIN_PUNTOS:
         base["frase"] = (f"{m['etiqueta']}: historial insuficiente ({n} de {MIN_PUNTOS} días hábiles). "
                          f"Último valor: {ultimo['texto']}.")
@@ -299,7 +289,6 @@ def analizar(clave: str, puntos: list) -> dict:
                       "direccion": {1: "sube", -1: "baja", 0: "igual"}[sd], "texto_corto": corto},
         "minimo": minimo, "maximo": maximo,
         "racha": {"direccion": nombre_dir, "dias": k},
-        "sparkline": spark(vals[-SPARK_PUNTOS:]), "spark_dias": len(vals[-SPARK_PUNTOS:]),
         "frase": (f"{cambio_txt} Rango del período: {minimo['texto']} a {maximo['texto']}. "
                   f"Racha: {k} {'día' if k == 1 else 'días'} {palabra}."),
     })

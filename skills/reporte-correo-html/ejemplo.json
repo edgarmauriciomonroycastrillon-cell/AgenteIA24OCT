@@ -58,11 +58,6 @@
           "fecha": "cierre del 23 oct 2026",
           "estado": "ok",
           "verificacion": "prensa"
-        },
-        {
-          "nombre": "Otras divisas",
-          "valor": "No encontrado",
-          "estado": "no_encontrado"
         }
       ]
     },
@@ -77,12 +72,6 @@
           "fecha": "20 oct 2026",
           "estado": "desactualizado",
           "verificacion": "prensa"
-        },
-        {
-          "nombre": "Estado en tiempo real de Invías y MinTransporte",
-          "valor": "No encontrado",
-          "detalle": "Las páginas son mapas en vivo sin texto con fecha. Consulte #767 antes de salir.",
-          "estado": "no_encontrado"
         }
       ]
     },
@@ -134,6 +123,7 @@
     }
   ],
   "limitaciones": [
+    "Otras divisas distintas al dólar y al euro.",
     "Estado vial en tiempo real de Invías y MinTransporte.",
     "Noticias de puertos y aduanas con fecha de hoy.",
     "Precios de combustibles de noviembre."

@@ -64,7 +64,6 @@ def main() -> int:
         if not i["suficiente"]:
             check("Historial insuficiente" in pagina and "historial insuficiente" in i["frase"],
                   f"{i['etiqueta']}: dice 'historial insuficiente' en vez de inventar tendencia")
-            check(not i["sparkline"], f"{i['etiqueta']}: no dibuja gráfica con pocos datos")
 
     primera = md.strip().splitlines()[0] if md.strip() else ""
     if alertas:
@@ -94,6 +93,10 @@ def main() -> int:
     check("baseline" not in md.lower() and "baseline" not in pagina.lower(), "no queda ninguna mención a baseline.json")
     check(not re.search(r"\b(nan|None|undefined)\b", txt), "la versión de texto no tiene nan/None/undefined")
     check("<script" not in pagina.lower(), "el correo no tiene scripts")
+    check(not any(c in pagina for c in "▁▂▃▄▅▆▇█") and "<img" not in pagina.lower() and "<svg" not in pagina.lower(),
+          "el correo no tiene gráficas")
+    check("no encontrado" not in (pagina + txt).lower() and "no_encontrado" not in (pagina + txt).lower(),
+          "el correo no dice 'No encontrado' en ninguna parte")
     check(len(pagina.encode("utf-8")) < 100_000, f"el HTML pesa menos de 100 KB ({len(pagina.encode('utf-8')) // 1000} KB)")
     print(f"costo de la prueba: USD {res.get('cost_usd')}")
     return mostrar(resultados)

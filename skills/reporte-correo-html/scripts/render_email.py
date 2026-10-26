@@ -7,8 +7,8 @@ Usage:
 Writes <out>/reporte.html and <out>/reporte.txt. Standard library only.
 All text in the JSON is plain text: this script escapes it, so never put HTML in it.
 
-Design: a printed economic bulletin. Cream paper, serif type, dark green ink, terracotta accent,
-rules and tables instead of boxed cards. Tables and inline styles only, so Gmail and Outlook keep it.
+Design: a sober economic bulletin. White paper, graphite text, one steel-blue accent, thin rules and
+tables instead of boxed cards, no charts. Tables and inline styles only, so Gmail and Outlook keep it.
 """
 
 from __future__ import annotations
@@ -19,32 +19,47 @@ import json
 import sys
 from pathlib import Path
 
-FONDO = "#e9e3d3"   # fuera del papel
-PAPEL = "#fbf9f3"
-TINTA = "#222a25"
-VERDE = "#2f5d46"
-TERRA = "#b0502b"
-GRIS = "#6d6b60"
-REGLA = "#d9d1bd"
-OCRE = "#8a6d1f"
+FONDO = "#eef1f4"   # fuera del papel
+PAPEL = "#ffffff"
+TINTA = "#1f2933"   # grafito
+AZUL = "#2b5f9e"    # único acento
+AMBAR = "#b45309"   # alza, alerta, avisos
+GRIS = "#6b7785"
+REGLA = "#d5dbe1"
 SERIF = "Georgia,'Times New Roman',serif"
 SANS = "Helvetica,Arial,sans-serif"
 
 TREND = {  # colores neutros a propósito: que un número suba no es bueno ni malo por sí solo
-    "sube": ("&#9650;", "#a8451f"),
-    "baja": ("&#9660;", "#2b6e63"),
+    "sube": ("&#9650;", AMBAR),
+    "baja": ("&#9660;", AZUL),
     "igual": ("&#9632;", GRIS),
 }
 STATE = {
-    "desactualizado": ("desactualizado", OCRE),
-    "no_encontrado": ("no encontrado", GRIS),
+    "desactualizado": ("desactualizado", AMBAR),
 }
 VERIF = {
-    "oficial": ("Fuente oficial", VERDE),
+    "oficial": ("Fuente oficial", AZUL),
     "prensa": ("V&iacute;a prensa", GRIS),
-    "sin_verificar": ("Sin verificar", TERRA),
+    "sin_verificar": ("Sin verificar", AMBAR),
 }
 VERIF_TXT = {"oficial": "Fuente oficial", "prensa": "Vía prensa", "sin_verificar": "Sin verificar"}
+
+
+def sin_faltantes(d: dict) -> dict:
+    """Quita las cifras que no se encontraron. Una tarjeta vacía que dice 'No encontrado' no le sirve
+    al lector: el nombre pasa a la lista 'Por confirmar hoy' y la sección vacía se omite."""
+    d = json.loads(json.dumps(d))
+    faltan = []
+    for sec in d.get("secciones", []):
+        quedan = []
+        for it in sec.get("items", []):
+            vacio = str(it.get("estado", "")).lower() == "no_encontrado" or                 str(it.get("valor", "")).strip().lower().rstrip(".") == "no encontrado"
+            (faltan if vacio else quedan).append(it.get("nombre", "") if vacio else it)
+        sec["items"] = quedan
+    d["secciones"] = [sec for sec in d.get("secciones", []) if sec.get("items")]
+    previos = [str(x) for x in d.get("limitaciones", [])]
+    d["limitaciones"] = previos + [f for f in faltan if f and not any(f.lower() in p.lower() for p in previos)]
+    return d
 
 
 def esc(value) -> str:
@@ -67,7 +82,7 @@ def etiqueta_chica(texto: str, color: str = GRIS) -> str:
 
 def titulo_seccion(texto: str) -> str:
     return (
-        f'<tr><td style="padding:26px 24px 2px 24px;"><div style="font-family:{SERIF};font-size:21px;color:{VERDE};'
+        f'<tr><td style="padding:26px 24px 2px 24px;"><div style="font-family:{SERIF};font-size:21px;color:{AZUL};'
         f'border-bottom:1px solid {REGLA};padding-bottom:5px;">{texto}</div></td></tr>'
     )
 
@@ -133,7 +148,7 @@ def item_block(it: dict) -> str:
     if efecto:
         parts.append(
             f'<div style="font-family:{SERIF};font-size:15px;color:{TINTA};margin-top:8px;line-height:1.55;'
-            f'border-left:2px solid {TERRA};padding-left:10px;"><i>Impacto.</i> {efecto}</div>'
+            f'border-left:2px solid {AZUL};padding-left:10px;"><i>Impacto.</i> {efecto}</div>'
         )
     fuente = esc(it.get("fuente", ""))
     fecha = esc(it.get("fecha", ""))
@@ -178,8 +193,8 @@ def alerta_block(t: dict | None) -> str:
     lines = "".join(f'<div style="margin:2px 0;">{esc(a.get("texto", ""))}</div>' for a in alertas)
     return (
         f'<tr><td style="padding:16px 24px 0 24px;"><table role="presentation" width="100%" cellpadding="0" cellspacing="0" '
-        f'style="border-top:3px solid {TERRA};border-bottom:1px solid {TERRA};"><tr>'
-        f'<td style="padding:10px 0;font-family:{SANS};font-size:14px;font-weight:bold;color:{TERRA};line-height:1.5;">{lines}</td>'
+        f'style="border-top:3px solid {AMBAR};border-bottom:1px solid {AMBAR};"><tr>'
+        f'<td style="padding:10px 0;font-family:{SANS};font-size:14px;font-weight:bold;color:{AMBAR};line-height:1.5;">{lines}</td>'
         f"</tr></table></td></tr>"
     )
 
@@ -191,28 +206,23 @@ def tendencia_card(i: dict) -> str:
     if i.get("suficiente") and i.get("variacion"):
         v = i["variacion"]
         t = TREND.get(v.get("direccion", ""), TREND["igual"])
-        # 16 px y una columna: 20 bloques miden ~210 px y caben en un celular de 320 px.
-        spark = (
-            f'<div style="font-family:Consolas,Menlo,\'Courier New\',monospace;font-size:16px;line-height:1.1;'
-            f'letter-spacing:1px;color:{VERDE};white-space:nowrap;overflow:hidden;">{esc(i.get("sparkline", ""))}</div>'
-            f'<div style="font-family:{SANS};font-size:11px;color:{GRIS};margin-top:3px;">&uacute;ltimos {esc(i.get("spark_dias", ""))} d&iacute;as h&aacute;biles</div>'
-        )
         chip = (
             f' <span style="font-family:{SANS};font-size:13px;color:{t[1]};white-space:nowrap;">{t[0]} {esc(v.get("texto_corto", ""))}'
             f' <span style="color:{GRIS};">en {esc(v.get("dias", ""))} d</span></span>'
         )
+        aviso = ""
     else:
-        spark = (
-            f'<div style="font-family:{SANS};font-size:12px;color:{GRIS};">'
+        chip = ""
+        aviso = (
+            f'<div style="margin-top:6px;font-family:{SANS};font-size:12px;color:{GRIS};">'
             f'<b style="text-transform:uppercase;letter-spacing:.1em;font-size:10px;border:1px solid {GRIS};padding:1px 5px;">Historial insuficiente</b>'
             f' &nbsp;{esc(i.get("n_dias", 0))} de 5 d&iacute;as h&aacute;biles</div>'
         )
-        chip = ""
     return (
         f'<tr><td style="padding:14px 24px;border-bottom:1px solid {REGLA};">'
         f'<div>{etiqueta_chica(etiqueta)}</div>'
         f'<div style="margin-top:2px;"><span style="font-family:{SERIF};font-size:20px;color:{TINTA};">{valor}</span>{chip}</div>'
-        f'<div style="margin-top:8px;">{spark}</div>'
+        f'{aviso}'
         f'<div style="margin-top:8px;font-family:{SERIF};font-size:14px;color:{TINTA};line-height:1.55;">{frase}</div></td></tr>'
     )
 
@@ -229,6 +239,7 @@ def tendencia_block(t: dict | None) -> str:
 # ---------- documento ----------
 
 def render_html(d: dict, t: dict | None = None) -> str:
+    d = sin_faltantes(d)
     kpis = kpi_block(d.get("titulares", [])) + tendencia_block(t)
     alerta = alerta_block(t)
     sections = "".join(section_block(s) for s in d.get("secciones", []))
@@ -237,7 +248,7 @@ def render_html(d: dict, t: dict | None = None) -> str:
     if lim:
         lis = "".join(f'<li style="margin:4px 0;">{esc(x)}</li>' for x in lim)
         lim_html = (
-            titulo_seccion("Lo que no se pudo verificar hoy")
+            titulo_seccion("Por confirmar hoy")
             + f'<tr><td style="padding:8px 24px 0 24px;font-family:{SERIF};font-size:14px;color:{GRIS};line-height:1.5;">'
             f'<ul style="margin:0;padding-left:20px;">{lis}</ul></td></tr>'
         )
@@ -254,9 +265,9 @@ def render_html(d: dict, t: dict | None = None) -> str:
 <body style="margin:0;padding:0;background:{FONDO};">
 <div style="display:none;max-height:0;overflow:hidden;opacity:0;">{resumen}</div>
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:{FONDO};"><tr><td align="center" style="padding:16px 8px;">
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:640px;background:{PAPEL};border-top:5px solid {VERDE};">
-<tr><td style="padding:22px 24px 14px 24px;border-bottom:3px double #b9ae92;">
-<div>{etiqueta_chica("Bolet&iacute;n econ&oacute;mico &middot; Colombia", TERRA)}</div>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:640px;background:{PAPEL};border-top:5px solid {AZUL};">
+<tr><td style="padding:22px 24px 14px 24px;border-bottom:3px double #b8c2cc;">
+<div>{etiqueta_chica("Bolet&iacute;n econ&oacute;mico &middot; Colombia", AZUL)}</div>
 <div style="font-family:{SERIF};font-size:29px;line-height:1.15;color:{TINTA};margin-top:8px;">{esc(d.get("titulo", "Reporte económico"))}</div>
 <div style="font-family:{SERIF};font-size:14px;font-style:italic;color:{GRIS};margin-top:6px;">{esc(d.get("fecha", ""))}</div></td></tr>
 {alerta}
@@ -271,6 +282,7 @@ def render_html(d: dict, t: dict | None = None) -> str:
 
 
 def render_text(d: dict, t: dict | None = None) -> str:
+    d = sin_faltantes(d)
     lines = [str(d.get("titulo", "Reporte")), str(d.get("fecha", "")), ""]
     for a in (t or {}).get("alertas") or []:
         lines.append(f'!! {a.get("texto", "")}')
@@ -280,8 +292,7 @@ def render_text(d: dict, t: dict | None = None) -> str:
     if (t or {}).get("indicadores"):
         lines += ["", "TENDENCIA DE LA SEMANA", "-" * 30]
         for i in t["indicadores"]:
-            spark = f' {i["sparkline"]}' if i.get("sparkline") else ""
-            lines.append(f'{i.get("frase", "")}{spark}')
+            lines.append(str(i.get("frase", "")))
     for s in d.get("secciones", []):
         lines += ["", str(s.get("titulo", "")).upper(), "-" * 30]
         for it in s.get("items", []):
@@ -300,7 +311,7 @@ def render_text(d: dict, t: dict | None = None) -> str:
         for n in s.get("notas", []):
             lines.append(f"  - {n}")
     if d.get("limitaciones"):
-        lines += ["", "LO QUE NO SE PUDO VERIFICAR HOY"]
+        lines += ["", "POR CONFIRMAR HOY"]
         lines += [f"  - {x}" for x in d["limitaciones"]]
     lines += ["", str(d.get("pie", "Reporte generado automáticamente. No es asesoría financiera."))]
     return "\n".join(lines) + "\n"

@@ -134,7 +134,6 @@ class Calculo(unittest.TestCase):
         self.assertFalse(r["suficiente"])
         self.assertIn("historial insuficiente", r["frase"])
         self.assertIsNone(r["variacion"])
-        self.assertEqual(r["sparkline"], "")
 
     def test_con_exactamente_5_dias_calcula_y_lo_dice(self):
         r = self.analizar([3100, 3110, 3120, 3130, 3140])
@@ -171,17 +170,17 @@ class Calculo(unittest.TestCase):
         r = self.analizar([6.29] * 6, clave="ipc_anual")
         self.assertIn("sin cambio", r["frase"])
         self.assertEqual(r["racha"]["direccion"], "igual")
-        self.assertEqual(set(r["sparkline"]), {"▄"})
 
     def test_tasas_se_expresan_en_puntos_porcentuales(self):
         r = self.analizar([12.00, 12.00, 12.00, 12.00, 12.00, 12.25], clave="tasa_politica_banrep")
         self.assertIn("sube 0,25 pp", r["frase"])
 
-    def test_sparkline_sube_de_bajo_a_alto(self):
-        s = t.spark([1, 2, 3, 4, 5, 6, 7, 8])
-        self.assertEqual(s[0], "▁")
-        self.assertEqual(s[-1], "█")
-        self.assertEqual(len(s), 8)
+
+class SinGraficas(unittest.TestCase):
+    def test_el_calculo_ya_no_trae_grafica(self):
+        r = t.analizar("trm_usd", serie([3000, 3010, 3020, 3030, 3040, 3050]))
+        self.assertNotIn("sparkline", r)
+        self.assertFalse(hasattr(t, "spark"))
 
 
 class Alertas(unittest.TestCase):

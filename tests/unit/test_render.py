@@ -27,13 +27,12 @@ SUFICIENTE = {
     "clave": "trm_usd", "etiqueta": "TRM", "n_dias": 21, "suficiente": True,
     "ultimo": {"fecha": "2026-10-26", "valor": 3158.43, "texto": "$3.158,43"},
     "variacion": {"dias": 5, "abs": -16.24, "pct": -0.51, "direccion": "baja", "texto_corto": "-0,51 %"},
-    "sparkline": "▇▅▃▁", "spark_dias": 4,
     "frase": "TRM baja $16,24 (-0,51 %) en 5 días hábiles.",
 }
 INSUFICIENTE = {
     "clave": "euro_cop", "etiqueta": "Euro", "n_dias": 1, "suficiente": False,
     "ultimo": {"fecha": "2026-10-23", "valor": 3553.1, "texto": "$3.553,10"},
-    "variacion": None, "sparkline": "", "spark_dias": 0,
+    "variacion": None,
     "frase": "Euro: historial insuficiente (1 de 5 días hábiles). Último valor: $3.553,10.",
 }
 
@@ -47,7 +46,6 @@ class Tendencia(unittest.TestCase):
     def test_con_tendencia_aparece_la_seccion(self):
         html = r.render_html(REPORTE, {"indicadores": [SUFICIENTE, INSUFICIENTE], "alertas": []})
         self.assertIn("Tendencia de la semana", html)
-        self.assertIn("▇▅▃▁", html)
         self.assertIn("-0,51 %", html)
 
     def test_historial_insuficiente_no_dibuja_grafica_ni_flecha(self):
@@ -55,7 +53,6 @@ class Tendencia(unittest.TestCase):
         self.assertIn("Historial insuficiente", bloque)
         self.assertNotIn("&#9650;", bloque)
         self.assertNotIn("&#9660;", bloque)
-        self.assertNotIn("monospace", bloque)
 
     def test_alerta_aparece_arriba_del_resumen(self):
         a = {"texto": "Alerta: TRM sube 1,57 % en un día (de $3.185,01 a $3.235,00)."}
@@ -88,8 +85,34 @@ class Tendencia(unittest.TestCase):
 
     def test_el_diseno_no_usa_la_paleta_anterior(self):
         html = r.render_html(REPORTE, {"indicadores": [SUFICIENTE], "alertas": []}).lower()
-        for viejo in ("#12263f", "#c8922a", "border-radius"):  # azul marino, dorado, esquinas redondeadas
+        for viejo in ("#12263f", "#c8922a", "border-radius",   # azul marino y dorado, esquinas redondeadas
+                      "#2f5d46", "#b0502b", "#fbf9f3"):         # verde, terracota y crema
             self.assertNotIn(viejo, html)
+
+    def test_usa_la_paleta_de_grafito_y_azul(self):
+        html = r.render_html(REPORTE, {"indicadores": [SUFICIENTE], "alertas": []}).lower()
+        for color in ("#1f2933", "#2b5f9e", "#eef1f4"):
+            self.assertIn(color, html)
+
+    def test_un_dato_faltante_no_sale_como_no_encontrado(self):
+        d = json.loads(json.dumps(REPORTE))
+        d["secciones"][0]["items"].append({"nombre": "Otras divisas", "valor": "No encontrado", "estado": "no_encontrado"})
+        d["secciones"][1]["items"].append({"nombre": "Estado de Invías", "valor": "no encontrado."})
+        html, txt = r.render_html(d), r.render_text(d)
+        for salida in (html.lower(), txt.lower()):
+            self.assertNotIn("no encontrado", salida)
+            self.assertNotIn("no_encontrado", salida)
+        self.assertIn("Otras divisas", html)  # el nombre pasa a "Por confirmar hoy"
+        self.assertIn("Estado de Inv", html)
+        self.assertIn("Por confirmar hoy", html)
+
+    def test_una_seccion_sin_items_se_omite(self):
+        d = {"titulo": "T", "fecha": "F", "resumen": "R", "secciones": [
+            {"titulo": "Solo faltantes", "items": [{"nombre": "X", "estado": "no_encontrado"}]},
+            {"titulo": "Con datos", "items": [{"nombre": "Y", "valor": "1"}]}]}
+        html = r.render_html(d)
+        self.assertNotIn("Solo faltantes", html)
+        self.assertIn("Con datos", html)
 
     def test_el_texto_se_escapa(self):
         malo = dict(SUFICIENTE, frase="<script>alert(1)</script>")
@@ -97,11 +120,13 @@ class Tendencia(unittest.TestCase):
         self.assertNotIn("<script>alert(1)</script>", html)
         self.assertIn("&lt;script&gt;", html)
 
-    def test_la_grafica_no_ensancha_el_correo(self):
-        """Un nowrap sin límite fue lo que rompió el diseño en pantallas angostas."""
+    def test_no_hay_graficas(self):
         html = r.render_html(REPORTE, {"indicadores": [SUFICIENTE], "alertas": []})
-        self.assertIn("font-size:16px", html)
-        self.assertIn("overflow:hidden", html)
+        for bloque in "▁▂▃▄▅▆▇█":
+            self.assertNotIn(bloque, html)
+        self.assertNotIn("monospace", html)
+        self.assertNotIn("<img", html)
+        self.assertNotIn("<svg", html)
 
 
 if __name__ == "__main__":
