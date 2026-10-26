@@ -1,47 +1,41 @@
-# AgenteIA24OCT
+# Analista económico Colombia 🇨🇴
 
-Agente de Claude Managed Agents: analista económico diario para Colombia. Lee la TRM oficial,
-busca divisas, vías y macroeconomía en fuentes confiables, calcula la tendencia de la semana y
-envía por correo un boletín en HTML. Cada cifra dice de dónde viene y qué tan verificada está.
+Este es un agente de IA que construí con Claude Managed Agents. Corre solo en la nube: de lunes a viernes a las 6:30 a. m. revisa los indicadores económicos y logísticos de Colombia y me envía un boletín por correo.
 
-- **Estado:** funciona. Probado de punta a punta en la nube. Construido con la skill `managed-agents-wizard`.
-- **Disparador:** Deployment, lunes a viernes 6:30 (America/Bogota). Está **activo** desde el
-  2026-10-26 (lo encendió el usuario para probar). Para controlar costos se pausa cuando no se
-  necesite; los comandos están en
-  [agents/analista-colombia/README.md](agents/analista-colombia/README.md#estado-del-deployment).
-- **Costo medido por corrida:** USD 0,41 a 0,72 (8 pruebas el 2026-10-24 y 26; la última, USD 0,72, con apertura de páginas oficiales). El tope por corrida es USD 3.
-- **Modelo:** `claude-sonnet-5-5` (ver `agents/analista-colombia/model.yaml`).
+Lo hice en el workshop de Managed Agents en la Universidad de La Salle (Bogotá, octubre de 2026). Lo pensé para buyers y equipos de compras y logística, que necesitan saber cómo amanece la TRM o si hay problemas en las vías antes de tomar decisiones.
+
+## Qué hace
+
+Cada mañana el agente:
+
+- Consulta la TRM oficial en la API de datos abiertos de la Superfinanciera.
+- Busca la inflación, la tasa del Banco de la República, el euro y el estado de las vías en fuentes confiables (DANE, Banco de la República, Ministerio de Transporte, Invías y prensa económica).
+- Guarda los valores en un historial y calcula cómo se han movido en la semana.
+- Me envía un correo con todo, indicando de dónde salió cada cifra.
+
+## Algunas decisiones que tomé
+
+**Las cuentas las hace Python, no el modelo.** Un modelo de lenguaje puede equivocarse con los números, así que las variaciones, rachas y alertas las calcula un script. Así el resultado es siempre el mismo.
+
+**No inventa tendencias.** Si un indicador tiene menos de 5 días de historial, el correo lo dice en vez de sacar conclusiones con pocos datos.
+
+**Cada cifra dice qué tan confiable es.** Puede ser "Fuente oficial", "Vía prensa" o "Sin verificar". En una prueba vi que el agente marcaba datos como oficiales sin haber abierto la página, así que agregué una regla en código: solo dice "Fuente oficial" si la página realmente se abrió.
+
+**Solo busca en sitios confiables.** La búsqueda está limitada a 13 dominios, y la memoria solo guarda números, fechas y fuentes, nunca texto de páginas web.
+
+**La clave del correo no está en el repo.** Vive en un vault y el agente nunca ve su valor real.
 
 ## Cómo está organizado
 
-| Carpeta | Qué hay |
-|---|---|
-| `agents/analista-colombia/` | El agente: prompt, tools, red, memoria, horario. Su README tiene la ficha completa con el porqué de cada capa |
-| `skills/reporte-correo-html/` | La skill del agente: historial y tendencias (`tendencia.py`), páginas oficiales (`abrir_fuente.py`), correo HTML (`render_email.py`) y envío (`enviar_resend.py`) |
-| `scripts/` | Herramientas para construir, probar y depurar (`ensamblar.py`, `probar.py`, `verificar_prueba.py`, ...) |
-| `tests/unit/` | Pruebas unitarias sin internet |
-| `claude-lock.json` | Los IDs de lo que existe en la nube (no contiene secretos) |
+- `agents/analista-colombia/`: el agente (instrucciones, herramientas, memoria y horario). Su README tiene todos los detalles técnicos.
+- `skills/reporte-correo-html/`: los scripts de Python que calculan la tendencia, arman el correo y lo envían.
+- `scripts/`: herramientas para probar y depurar.
+- `tests/unit/`: 55 pruebas que corren sin internet.
 
-## Cómo funciona un día
+## Estado
 
-1. El Deployment arranca una Session a las 6:30.
-2. El agente pide la TRM oficial a datos.gov.co y la guarda en su memoria (`historial.csv`).
-3. Busca el resto de indicadores y guarda sus valores, siempre a través de `tendencia.py`, que
-   valida cada fila.
-4. `tendencia.py calcular` hace las cuentas (variación de 5 días hábiles, mínimo, máximo, racha y
-   alerta si la TRM cambia más de 1 % en un día). El modelo solo copia las frases.
-5. `render_email.py` arma el HTML y `enviar_resend.py` lo envía.
+Funciona y lo probé de punta a punta. Lo tengo pausado para controlar costos (cada corrida cuesta entre USD 0,41 y 0,72), y lo activo cuando lo necesito.
 
-## Probar
+## Lo que me gustaría agregar
 
-```sh
-python -m unittest tests.unit.test_tendencia tests.unit.test_render tests.unit.test_abrir_fuente
-uv run --script scripts/probar.py agents/analista-colombia/tests/basico.json   # dry run, no envía correo
-python scripts/verificar_prueba.py tests/out/analista-colombia/<sesion>
-```
-
-## Secretos
-
-Los secretos **no** están en este repo. La clave de Resend vive en el vault de Anthropic y se
-carga con `scripts/cargar-resend.ps1`, que la lee oculta en tu terminal. El agente nunca ve el
-valor real. `.env` está en `.gitignore`; `.env.example` es solo una plantilla vacía.
+- Más días de historial para ver tendencias del mes.
