@@ -8,10 +8,12 @@ import datetime as dt
 import importlib.util
 import json
 import tempfile
+import sys
 import unittest
 from pathlib import Path
 
 RAIZ = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(RAIZ / "skills" / "reporte-correo-html" / "scripts"))
 spec = importlib.util.spec_from_file_location(
     "tendencia", RAIZ / "skills" / "reporte-correo-html" / "scripts" / "tendencia.py")
 t = importlib.util.module_from_spec(spec)

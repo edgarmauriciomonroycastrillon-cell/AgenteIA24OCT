@@ -87,6 +87,21 @@ def main() -> int:
                   "la TRM sale marcada como fuente oficial (viene de datos.gov.co)")
         check(not any(it.get("verificacion") == "oficial" and not it.get("fuente") for it in items),
               "ninguna cifra 'oficial' queda sin nombre de fuente")
+        # la etiqueta debe estar respaldada por el registro de páginas que de verdad se abrieron
+        reg_ruta = d / "fuentes_abiertas.json"
+        registro = json.loads(reg_ruta.read_text(encoding="utf-8")) if reg_ruta.exists() else []
+        leidas = {e.get("url") for e in registro if e.get("ok")}
+        def norm(u):
+            m = re.match(r"https?://(?:www\.)?([^/?#]+)([^?#]*)", u or "")
+            return (m.group(1).lower() + m.group(2).rstrip("/")) if m else ""
+        respaldadas = [it for it in items if it.get("verificacion") == "oficial" and norm(it.get("url")) in leidas]
+        en_correo = pagina.count('color:#2b5f9e;">Fuente oficial</b>')
+        check(en_correo == len(respaldadas),
+              f"el correo muestra {en_correo} cifra(s) 'Fuente oficial' y el registro respalda {len(respaldadas)}")
+        bloqueadas = [e["url"] for e in registro if not e.get("ok")]
+        if bloqueadas:
+            print("páginas oficiales que no se pudieron leer (informativo): " + ", ".join(sorted(set(bloqueadas))))
+        print(f"páginas oficiales abiertas con éxito: {len(leidas)}")
     except json.JSONDecodeError:
         check(False, "reporte.json es JSON válido")
 

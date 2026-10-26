@@ -32,6 +32,8 @@ import urllib.parse
 import urllib.request
 from pathlib import Path
 
+import abrir_fuente  # mismo directorio: registro de páginas oficiales abiertas
+
 HISTORIAL = os.environ.get("HISTORIAL_CSV", "/mnt/memory/colombia-indicadores/historial.csv")
 CAMPOS = ["fecha", "indicador", "valor", "fuente"]
 MAX_DIAS = 90  # cuánto historial se guarda
@@ -187,6 +189,7 @@ def cmd_sembrar_trm(args, hoy: dt.date) -> int:
     for d, (valor, _, _) in cubierto.items():
         filas[(d, "trm_usd")] = (valor, TRM_FUENTE)
     escribir(args.archivo, podar(filas, hoy))
+    abrir_fuente.registrar(args.registro, TRM_URL, 200, True, len(json.dumps(api)), "TRM de datos abiertos")
     ultima = max(cubierto)
     valor, desde, hasta = cubierto[ultima]
     print(f"ok: {len(cubierto)} días de TRM en el historial. TRM vigente al {ultima}: "
@@ -352,6 +355,7 @@ def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--archivo", default=HISTORIAL, help="ruta del historial.csv")
     ap.add_argument("--hoy", help="AAAA-MM-DD; solo para pruebas")
+    ap.add_argument("--registro", default=abrir_fuente.REGISTRO, help="registro de páginas oficiales abiertas")
     sub = ap.add_subparsers(dest="cmd", required=True)
     s = sub.add_parser("sembrar-trm")
     s.add_argument("--dias", type=int, default=30)

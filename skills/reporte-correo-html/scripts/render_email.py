@@ -19,6 +19,8 @@ import json
 import sys
 from pathlib import Path
 
+import abrir_fuente  # mismo directorio: registro de páginas oficiales abiertas
+
 FONDO = "#eef1f4"   # fuera del papel
 PAPEL = "#ffffff"
 TINTA = "#1f2933"   # grafito
@@ -60,6 +62,27 @@ def sin_faltantes(d: dict) -> dict:
     previos = [str(x) for x in d.get("limitaciones", [])]
     d["limitaciones"] = previos + [f for f in faltan if f and not any(f.lower() in p.lower() for p in previos)]
     return d
+
+
+def ajustar_verificacion(d: dict, registro: list) -> tuple[dict, list]:
+    """'Fuente oficial' solo si la página de la cifra está en el registro como leída.
+
+    El modelo escribe la etiqueta, pero no puede darse a sí mismo la prueba: el registro lo escriben
+    abrir_fuente.py y tendencia.py cuando abren de verdad la página. Si falta, la cifra baja a
+    'sin_verificar'. Devuelve el reporte ajustado y los nombres de las cifras que bajaron.
+    """
+    d = json.loads(json.dumps(d))
+    leidas = {e.get("url") for e in registro if e.get("ok")}
+    bajaron = []
+    for sec in d.get("secciones", []):
+        for it in sec.get("items", []):
+            if str(it.get("verificacion", "")).lower() != "oficial":
+                continue
+            url = it.get("url")
+            if not url or abrir_fuente.normalizar(url) not in leidas:
+                it["verificacion"] = "sin_verificar"
+                bajaron.append(it.get("nombre", "?"))
+    return d, bajaron
 
 
 def esc(value) -> str:
@@ -238,8 +261,10 @@ def tendencia_block(t: dict | None) -> str:
 
 # ---------- documento ----------
 
-def render_html(d: dict, t: dict | None = None) -> str:
+def render_html(d: dict, t: dict | None = None, registro: list | None = None) -> str:
     d = sin_faltantes(d)
+    if registro is not None:  # sin registro (pruebas del diseño) no se ajusta nada
+        d, _ = ajustar_verificacion(d, registro)
     kpis = kpi_block(d.get("titulares", [])) + tendencia_block(t)
     alerta = alerta_block(t)
     sections = "".join(section_block(s) for s in d.get("secciones", []))
@@ -281,8 +306,10 @@ def render_html(d: dict, t: dict | None = None) -> str:
 </table></td></tr></table></body></html>"""
 
 
-def render_text(d: dict, t: dict | None = None) -> str:
+def render_text(d: dict, t: dict | None = None, registro: list | None = None) -> str:
     d = sin_faltantes(d)
+    if registro is not None:
+        d, _ = ajustar_verificacion(d, registro)
     lines = [str(d.get("titulo", "Reporte")), str(d.get("fecha", "")), ""]
     for a in (t or {}).get("alertas") or []:
         lines.append(f'!! {a.get("texto", "")}')
@@ -334,6 +361,8 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("json_file")
     ap.add_argument("--out", default=".")
+    ap.add_argument("--fuentes", default=abrir_fuente.REGISTRO,
+                    help="fuentes_abiertas.json: las páginas oficiales que de verdad se abrieron")
     ap.add_argument("--tendencia", help="tendencias.json de tendencia.py: agrega la alerta y la sección de tendencia")
     args = ap.parse_args()
     try:
@@ -352,10 +381,15 @@ def main() -> int:
         except (OSError, json.JSONDecodeError) as e:
             print(f"ERROR: no pude leer {args.tendencia} como JSON válido: {e}", file=sys.stderr)
             return 2
+    registro = abrir_fuente.leer_registro(args.fuentes)  # si no existe: lista vacía, nada es 'oficial'
+    _, bajaron = ajustar_verificacion(sin_faltantes(data), registro)
+    if bajaron:
+        print("aviso: bajé a 'Sin verificar' estas cifras, porque no hay registro de que se abrió su página "
+              "oficial: " + "; ".join(bajaron) + ". Ábrelas con abrir_fuente.py o márcalas 'prensa'.", file=sys.stderr)
     out = Path(args.out)
     out.mkdir(parents=True, exist_ok=True)
-    (out / "reporte.html").write_text(render_html(data, tend), encoding="utf-8")
-    (out / "reporte.txt").write_text(render_text(data, tend), encoding="utf-8")
+    (out / "reporte.html").write_text(render_html(data, tend, registro), encoding="utf-8")
+    (out / "reporte.txt").write_text(render_text(data, tend, registro), encoding="utf-8")
     print(f"ok: {out / 'reporte.html'} y {out / 'reporte.txt'}")
     return 0
 

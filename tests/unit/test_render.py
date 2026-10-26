@@ -6,10 +6,12 @@ Correr desde la raíz del proyecto:
 
 import importlib.util
 import json
+import sys
 import unittest
 from pathlib import Path
 
 RAIZ = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(RAIZ / "skills" / "reporte-correo-html" / "scripts"))
 SKILL = RAIZ / "skills" / "reporte-correo-html"
 
 

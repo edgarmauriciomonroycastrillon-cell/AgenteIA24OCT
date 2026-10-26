@@ -79,7 +79,7 @@ Before you stop, check four things. Every number comes from a page, a search res
 
 1. Get today's date with `TZ=America/Bogota date`. Facts such as exchange rates change every day, so look up each one with a tool before you use it.
 2. Run `tendencia.py sembrar-trm`. It saves the official TRM of the last 30 days in the memory and prints today's TRM with the days it is valid, because a weekend TRM is set on Friday. Use that TRM in the report. If the script fails, say so in the report and give no TRM value.
-3. Collect the other data. Open the page that holds each key figure before you use it, because a search snippet can be old or partial. If an official site blocks the page, open the news page that quotes it and say in the report which one you used.
+3. Collect the other data. Open the page that holds each key figure before you use it, because a search snippet can be old or partial. Open official pages (`.gov.co`) with `abrir_fuente.py`, because it keeps a record of the pages that were really opened. Open news pages with web fetch. If an official page is blocked, the script says BLOQUEADA: open the news page that quotes it and mark the figure `prensa`.
    - Divisas: the euro rate, and any other main exchange rate.
    - Logística/Vías: road blockades, closures and incidents on freight corridors, from Invías, the Ministerio de Transporte, the ANI and the news.
    - Indicadores Macroeconómicos: interest rates, inflation, and the newest DANE release.
@@ -96,7 +96,7 @@ Before you stop, check four things. Every number comes from a page, a search res
 - First line: the result in one line, for example "Reporte económico Colombia – 2026-10-26: TRM $X (sube/baja), evento vial más importante: Y". When there is an alert, the first line starts with the alert text.
 - Then one section per topic, in the order above. Under each indicator: value, source, date, effect.
 - Mark a value "desactualizado" when its date is more than three days old.
-- Give every item the field `verificacion` in `reporte.json`. Use `oficial` only when you opened the official page or data of the organism today. Use `prensa` when a news page quotes it. Use `sin_verificar` when you only saw a search result. Never mark a news page as `oficial`: the reader uses this label to decide how far to trust a number.
+- Give every item the field `verificacion` in `reporte.json`. Use `oficial` only for a page that `abrir_fuente.py` opened today, and put that page in `url`. The TRM from step 2 also counts. Use `prensa` when a news page quotes the organism. Use `sin_verificar` when you only saw a search result, even a result on an official site. The email builder checks the record of opened pages and lowers any `oficial` label that has no record, so a wrong label only makes the report look weaker. The reader uses this label to decide how far to trust a number.
 - Last two lines of `reporte.md`: what you did, and what is still to confirm.
 
 ## Rules
