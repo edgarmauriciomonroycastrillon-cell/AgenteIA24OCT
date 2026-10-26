@@ -4,7 +4,7 @@ Agente de Claude Managed Agents: analista económico diario para Colombia. Lee l
 busca divisas, vías y macroeconomía en fuentes confiables, calcula la tendencia de la semana y
 envía por correo un boletín en HTML. Cada cifra dice de dónde viene y qué tan verificada está.
 
-- **Estado:** funciona. Probado de punta a punta en la nube.
+- **Estado:** funciona. Probado de punta a punta en la nube. Construido con la skill `managed-agents-wizard`.
 - **Disparador:** Deployment, lunes a viernes 6:30 (America/Bogota). Está **activo** desde el
   2026-10-26 (lo encendió el usuario para probar). Para controlar costos se pausa cuando no se
   necesite; los comandos están en
