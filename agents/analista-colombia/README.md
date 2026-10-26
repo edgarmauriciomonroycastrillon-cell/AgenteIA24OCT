@@ -3,8 +3,8 @@
 Analista económico diario para Colombia: cada día hábil lee la TRM oficial, busca en fuentes oficiales y de prensa los indicadores de divisas, logística/vías y macroeconomía, calcula la **tendencia de la semana** con un script, y envía por correo un boletín en HTML. Cada cifra lleva su fuente, su fecha y una etiqueta que dice si la fuente es oficial, vía prensa o sin verificar.
 
 - **Estado:** funciona. Probado de punta a punta en la nube (dry run y envío real).
-- **Deployment:** ver [Estado del Deployment](#estado-del-deployment). Se pausa para controlar costos cuando no se está probando.
-- **Costo medido por corrida:** COSTO_AQUI
+- **Deployment:** **activo** desde el 2026-10-26 (lo encendió el usuario para probar); corre lunes a viernes 6:30. Para controlar costos se pausa cuando no se necesite: ver [Estado del Deployment](#estado-del-deployment).
+- **Costo medido por corrida:** USD 0,41 a 0,72 (8 pruebas el 2026-10-24 y 26; la última, USD 0,72, con apertura de páginas oficiales). El tope por corrida es USD 3.
 
 ## Ficha
 
@@ -161,7 +161,7 @@ uv run --script scripts/inspeccionar.py <session_id>
 
 | Recurso | ID |
 |---|---|
-| agent.md | `agent_018v718v6WfZ2SbkA1puZjQd` (VERSION_AQUI) |
+| agent.md | `agent_018v718v6WfZ2SbkA1puZjQd` (v8) |
 | skills/reporte-correo-html | `skill_01UbFiNtmj2aDaxmJNz12GvR` |
 | environment.yaml | `env_01Ey6tqA2ygpwuLgGL6JkmKZ` |
 | vault.yaml | `vlt_011CgMLdGnA7v6zWFqrpEL3C` |

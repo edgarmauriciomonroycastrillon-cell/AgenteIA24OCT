@@ -5,10 +5,11 @@ busca divisas, vías y macroeconomía en fuentes confiables, calcula la tendenci
 envía por correo un boletín en HTML. Cada cifra dice de dónde viene y qué tan verificada está.
 
 - **Estado:** funciona. Probado de punta a punta en la nube.
-- **Disparador:** Deployment, lunes a viernes 6:30 (America/Bogota). Se pausa para controlar
-  costos cuando no se está probando; los comandos están en
+- **Disparador:** Deployment, lunes a viernes 6:30 (America/Bogota). Está **activo** desde el
+  2026-10-26 (lo encendió el usuario para probar). Para controlar costos se pausa cuando no se
+  necesite; los comandos están en
   [agents/analista-colombia/README.md](agents/analista-colombia/README.md#estado-del-deployment).
-- **Costo medido por corrida:** COSTO_AQUI
+- **Costo medido por corrida:** USD 0,41 a 0,72 (8 pruebas el 2026-10-24 y 26; la última, USD 0,72, con apertura de páginas oficiales). El tope por corrida es USD 3.
 - **Modelo:** `claude-sonnet-5-5` (ver `agents/analista-colombia/model.yaml`).
 
 ## Cómo está organizado
