@@ -1,2 +1,2 @@
 name: colombia-indicadores
-description: "Last known value, date and source of each Colombia indicator (TRM, euro, rates, inflation). The agent reads baseline.json at the start of a run and updates it at the end."
+description: "Holds historial.csv: one row per day and indicator (date, indicator, value, source name) for the last 90 days. Only the skill script tendencia.py writes to it, and it accepts only numbers, dates and source names."

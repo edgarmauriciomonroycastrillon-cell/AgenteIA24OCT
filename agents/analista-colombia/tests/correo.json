@@ -1,6 +1,7 @@
 {
  "agent": "analista-colombia",
  "title": "test analista-colombia envio real",
+ "descripcion": "Envio REAL: manda un correo a la bandeja del kickoff y cuesta una corrida completa. Usar solo cuando el dry run ya paso.",
  "budget_usd": 5,
  "vault_ids": ["vlt_011CgMLdGnA7v6zWFqrpEL3C"],
  "resources": [{"path": "./agents/analista-colombia/memory_store-indicadores.yaml", "access": "read_write"}],

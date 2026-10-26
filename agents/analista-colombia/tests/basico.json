@@ -1,6 +1,7 @@
 {
  "agent": "analista-colombia",
  "title": "test analista-colombia dry run",
+ "descripcion": "Dry run: genera reporte, tendencias y correo, pero NO envia. Despues de correrlo: python scripts/verificar_prueba.py tests/out/analista-colombia/<sesion>",
  "budget_usd": 5,
  "vault_ids": [],
  "resources": [{"path": "./agents/analista-colombia/memory_store-indicadores.yaml", "access": "read_write"}],
