@@ -9,4 +9,4 @@ envía el reporte por correo.
 - Los secretos NO están en este repo: van en variables de entorno / vault.
   Ver `.env.example`.
 
-Estado: en construcción con la skill `managed-agents-wizard`.
+Construido con la skill `managed-agents-wizard`.
